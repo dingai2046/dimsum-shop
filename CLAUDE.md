@@ -41,3 +41,15 @@ public/             # 静态资源（图片等）
 ## Git 规范
 - 分支: main (生产) / dev (开发) / feature/* (功能)
 - Commit 格式: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`
+
+## 记忆同步规范（重要）
+记忆目录：`~/.claude/projects/-Users-hjstudio-Projects-dimsum-shop/memory/`
+
+**每次完成任务后必须：**
+1. 更新对应 `tasks/TASK-XXX.md` 的 `status` 为 `done`，勾选验收标准
+2. 更新 `topic_dev_roadmap.md` 对应条目打 `[x]`
+3. 如有踩坑或重要技术决策，写入 `feedback_dev.md`
+
+**触发词：**
+- 用户说"更新记忆" → 执行上述同步
+- 用户说"刷新索引" → 重新生成 MEMORY.md
