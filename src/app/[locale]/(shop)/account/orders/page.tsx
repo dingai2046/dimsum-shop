@@ -137,9 +137,13 @@ function OrdersPageContent({ currentStatus, orders }: { currentStatus: string; o
           })}
         </div>
       ) : (
-        <div className="py-16 text-center">
+        <div className="py-16 text-center animate-fade-up">
+          <div className="text-5xl mb-3 animate-gentle-bounce">🍜</div>
           <p className="text-muted-foreground">{t("noOrders")}</p>
-          <Link href="/products" className="mt-2 inline-block text-sm font-medium text-primary">
+          <Link
+            href="/products"
+            className="mt-4 inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
             {t("goShopping")}
           </Link>
         </div>

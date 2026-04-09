@@ -67,8 +67,8 @@ export function FavoritesContent({
 
       {/* 空状态 */}
       {favorites.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Heart className="h-12 w-12 text-muted-foreground/30" />
+        <div className="flex flex-col items-center justify-center py-20 text-center animate-fade-up">
+          <div className="text-5xl animate-gentle-bounce">❤️</div>
           <p className="mt-4 text-muted-foreground">{t("empty")}</p>
           <Link
             href="/menu"

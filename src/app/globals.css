@@ -220,3 +220,22 @@
 .animate-slide-up-bar {
   animation: slide-up-bar 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+/* 可爱的轻弹动画（空状态用） */
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.animate-gentle-bounce {
+  animation: gentle-bounce 2s ease-in-out infinite;
+}
+
+/* 庆祝摇晃 */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}

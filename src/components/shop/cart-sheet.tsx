@@ -116,8 +116,8 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
         <div className="max-h-[45vh] overflow-y-auto px-4 py-2">
           {items.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground animate-fade-up">
-              <p className="text-3xl mb-2">🛒</p>
-              <p>{t("empty")}</p>
+              <div className="text-5xl mb-3 animate-gentle-bounce">🥟</div>
+              <p className="font-medium text-foreground">{t("empty")}</p>
               <p className="mt-1 text-sm">{t("emptyHint")}</p>
             </div>
           ) : (

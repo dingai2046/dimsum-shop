@@ -150,8 +150,8 @@ export function AddressManager({ initialAddresses }: AddressManagerProps) {
           ))}
         </div>
       ) : (
-        <div className="py-16 text-center">
-          <MapPin className="mx-auto mb-4 h-12 w-12 text-muted-foreground/40" />
+        <div className="py-16 text-center animate-fade-up">
+          <div className="text-5xl mb-3 animate-gentle-bounce">🏠</div>
           <p className="text-muted-foreground">{t("noAddress")}</p>
         </div>
       )}

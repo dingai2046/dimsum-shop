@@ -142,7 +142,8 @@ export function MenuSection({ categories, onProductClick }: MenuSectionProps) {
         ))}
 
         {filteredCategories.length === 0 && searchQuery && (
-          <div className="py-20 text-center">
+          <div className="py-16 text-center animate-fade-up">
+            <div className="text-5xl mb-3">🔍</div>
             <p className="text-muted-foreground">{t("noSearchResults", { query: searchQuery })}</p>
           </div>
         )}
