@@ -2,6 +2,7 @@
 // 运行方式: npx tsx prisma/seed.ts
 
 import "dotenv/config";
+import bcrypt from "bcryptjs";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
@@ -124,14 +125,28 @@ async function main() {
   }
 
   // 创建管理员
+  const adminPassword = await bcrypt.hash("admin123", 10);
   await prisma.user.create({
     data: {
       email: "admin@dongfangdimsim.com",
       name: "Admin",
+      password: adminPassword,
       role: "ADMIN",
     },
   });
   console.log("  ✓ 管理员用户已创建");
+
+  // 创建 Demo 用户
+  const demoPassword = await bcrypt.hash("123456", 10);
+  await prisma.user.create({
+    data: {
+      email: "demo@dongfang.com",
+      name: "Demo User",
+      password: demoPassword,
+      role: "CUSTOMER",
+    },
+  });
+  console.log("  ✓ Demo 用户已创建 (demo@dongfang.com / 123456)");
 
   console.log(`\nSeed 完成！`);
   console.log(`  分类: ${seedCategories.length}`);

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { LoginForm } from "@/components/shop/login-form";
 
 export const metadata: Metadata = {
@@ -15,7 +16,9 @@ export default function LoginPage() {
             登录你的東方點心账号
           </p>
         </div>
-        <LoginForm />
+        <Suspense>
+          <LoginForm />
+        </Suspense>
         <p className="text-center text-xs text-muted-foreground">
           还没有账号？
           <a href="/register" className="ml-1 font-medium text-primary hover:text-primary/80">
