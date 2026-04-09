@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, LogOut, ClipboardList } from "lucide-react";
+import { User, LogOut, ClipboardList, Gift } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -53,6 +53,13 @@ export function Header() {
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             {t("orders")}
+          </Link>
+          <Link
+            href="/campaigns"
+            className="flex items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+          >
+            <Gift className="h-3.5 w-3.5" />
+            {t("campaigns")}
           </Link>
           <Link
             href="/about"

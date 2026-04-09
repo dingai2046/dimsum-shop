@@ -283,3 +283,41 @@ model Review {
   @@index([userId])
   @@map("reviews")
 }
+
+// 活动系统
+model Campaign {
+  id          String   @id @default(cuid())
+  slug        String   @unique  // URL 标识
+  title       String             // 活动标题
+  description String?            // 活动描述
+  image       String?            // 活动封面图
+  type        String             // 活动类型：google_review / share / checkin 等
+  reward      Json               // 奖励配置：{ couponType, couponValue, couponMinOrder, couponDesc }
+  config      Json?              // 活动配置：{ googlePlaceId, reviewUrl 等 }
+  isActive    Boolean  @default(true)
+  startDate   DateTime @default(now())
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  participations CampaignParticipation[]
+
+  @@map("campaigns")
+}
+
+model CampaignParticipation {
+  id         String   @id @default(cuid())
+  campaignId String
+  userId     String
+  couponId   String?  // 发放的优惠券
+  status     String   @default("PENDING") // PENDING / COMPLETED / REWARDED
+  metadata   Json?    // 额外数据
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  campaign Campaign @relation(fields: [campaignId], references: [id])
+
+  @@unique([campaignId, userId])
+  @@index([userId])
+  @@map("campaign_participations")
+}
