@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import Image from "next/image";
 import { ArrowLeft, MapPin, Store, Minus, Plus, CreditCard, Loader2, ChevronDown, Tag, X } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
@@ -77,6 +77,14 @@ export default function CheckoutPage() {
   const [clientSecret, setClientSecret] = useState("");
   const [orderNo, setOrderNo] = useState("");
   const [step, setStep] = useState<"info" | "payment">("info");
+  const [error, setError] = useState("");
+
+  // 错误信息 5 秒后自动消失
+  useEffect(() => {
+    if (!error) return;
+    const timer = setTimeout(() => setError(""), 5000);
+    return () => clearTimeout(timer);
+  }, [error]);
 
   // 已保存地址
   interface SavedAddress {
@@ -102,6 +110,7 @@ export default function CheckoutPage() {
   const [couponMsg, setCouponMsg] = useState("");
   const [couponError, setCouponError] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
+  const [availableCouponCode, setAvailableCouponCode] = useState("");
 
   const [form, setForm] = useState({
     name: "", phone: "", street1: "", street2: "",
@@ -136,6 +145,21 @@ export default function CheckoutPage() {
       }
     }
     fetchAddresses();
+
+    // 检查用户是否有可用优惠券
+    async function fetchAvailableCoupons() {
+      try {
+        const res = await fetch("/api/coupons/available");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.couponCode) {
+          setAvailableCouponCode(data.couponCode);
+        }
+      } catch {
+        // 忽略
+      }
+    }
+    fetchAvailableCoupons();
   }, []);
 
   const handleSelectAddress = (addressId: string) => {
@@ -249,7 +273,7 @@ export default function CheckoutPage() {
 
       if (!orderRes.ok) {
         const data = await orderRes.json();
-        alert((data.error || t("orderFailed")) + (data.detail ? "\n" + data.detail : ""));
+        setError((data.error || t("orderFailed")) + (data.detail ? " " + data.detail : ""));
         setLoading(false);
         return;
       }
@@ -269,9 +293,9 @@ export default function CheckoutPage() {
       });
 
       if (!payRes.ok) {
-        // 支付创建失败，但订单已创建，跳转到成功页让用户稍后支付
-        clearCart();
-        router.push(`/orders/success?orderNo=${order.orderNo}`);
+        // 支付创建失败，保留购物车，让用户可以重试
+        setError(t("paymentCreateFailed"));
+        setLoading(false);
         return;
       }
 
@@ -280,7 +304,7 @@ export default function CheckoutPage() {
       setStep("payment");
       clearCart();
     } catch {
-      alert(t("networkError"));
+      setError(t("networkError"));
     } finally {
       setLoading(false);
     }
@@ -306,6 +330,12 @@ export default function CheckoutPage() {
         {step === "info" ? t("title") : t("payment")}
       </h1>
 
+      {error && (
+        <div className="mb-4 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-medium text-destructive animate-in fade-in slide-in-from-top-2 duration-200">
+          {error}
+        </div>
+      )}
+
       {step === "payment" && clientSecret ? (
         /* Step 2: Stripe 支付 */
         <section className="rounded-xl bg-card p-4 shadow-sm">
@@ -316,6 +346,11 @@ export default function CheckoutPage() {
           <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "stripe" } }}>
             <PaymentForm orderNo={orderNo} onSuccess={() => router.push(`/orders/success?orderNo=${orderNo}`)} />
           </Elements>
+          <div className="mt-3 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
+            <span>🔒 {t("securePayment")}</span>
+            <span>✅ {t("qualityGuarantee")}</span>
+            <span>↩️ {t("easyRefund")}</span>
+          </div>
         </section>
       ) : (
         /* Step 1: 订单信息 */
@@ -505,6 +540,17 @@ export default function CheckoutPage() {
               </div>
             ) : (
               <>
+                {availableCouponCode && !couponCode && (
+                  <button
+                    type="button"
+                    onClick={() => setCouponCode(availableCouponCode)}
+                    className="mb-2 flex items-center gap-1.5 rounded-lg bg-primary/5 px-3 py-2 text-xs text-primary hover:bg-primary/10 transition-colors w-full"
+                  >
+                    <Tag className="h-3.5 w-3.5" />
+                    <span className="font-medium">{t("couponAvailable")}</span>
+                    <span className="ml-auto font-mono text-[11px] font-semibold">{availableCouponCode}</span>
+                  </button>
+                )}
                 <div className="flex gap-2">
                   <Input
                     value={couponCode}
@@ -563,6 +609,11 @@ export default function CheckoutPage() {
                   t("submitOrder", { price: formatPrice(finalTotal) })
                 )}
               </Button>
+              <div className="mt-3 flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
+                <span>🔒 {t("securePayment")}</span>
+                <span>✅ {t("qualityGuarantee")}</span>
+                <span>↩️ {t("easyRefund")}</span>
+              </div>
             </div>
           </div>
         </>

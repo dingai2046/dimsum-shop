@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
@@ -23,34 +23,39 @@ export function CartRecommendations() {
   const [products, setProducts] = useState<RecommendedProduct[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // 只在产品 ID 集合变化时重新请求，避免数量变化触发
+  const productIds = useMemo(() => items.map(i => i.productId).sort().join(","), [items]);
+
   useEffect(() => {
-    if (items.length === 0) {
+    if (!productIds) {
       setProducts([]);
       return;
     }
 
-    const excludeIds = items.map((item) => item.productId).join(",");
     let cancelled = false;
 
-    async function fetchRecommendations() {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/recommendations?exclude=${excludeIds}&limit=4`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (!cancelled && data.products) {
-          setProducts(data.products);
+    const timer = setTimeout(() => {
+      async function fetchRecommendations() {
+        setLoading(true);
+        try {
+          const res = await fetch(`/api/recommendations?exclude=${productIds}&limit=4`);
+          if (!res.ok) return;
+          const data = await res.json();
+          if (!cancelled && data.products) {
+            setProducts(data.products);
+          }
+        } catch {
+          // 静默失败，推荐不是核心功能
+        } finally {
+          if (!cancelled) setLoading(false);
         }
-      } catch {
-        // 静默失败，推荐不是核心功能
-      } finally {
-        if (!cancelled) setLoading(false);
       }
-    }
 
-    fetchRecommendations();
-    return () => { cancelled = true; };
-  }, [items]);
+      fetchRecommendations();
+    }, 500);
+
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [productIds]);
 
   if (items.length === 0 || (products.length === 0 && !loading)) return null;
 
@@ -93,7 +98,7 @@ export function CartRecommendations() {
                         image: product.image || "/images/products/xiajiao.jpg",
                       })
                     }
-                    className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all active:scale-90"
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all active:scale-90"
                     title={t("addMore")}
                   >
                     <Plus className="h-3 w-3" />

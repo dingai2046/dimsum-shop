@@ -73,11 +73,11 @@ export function MenuProductCard({
 
   return (
     <div
-      className="flex gap-3 py-3 cursor-pointer transition-all duration-150 active:bg-muted/40 active:scale-[0.995]"
+      className="flex gap-3 py-3.5 cursor-pointer transition-all duration-150 active:bg-muted/40 active:scale-[0.995]"
       onClick={onDetailClick}
     >
       {/* 产品图片 */}
-      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-24 group">
+      <div className="relative h-[92px] w-[92px] shrink-0 overflow-hidden rounded-xl bg-muted sm:h-[108px] sm:w-[108px] group">
         <Image
           src={image || "/images/products/xiajiao.jpg"}
           alt={name}
@@ -86,7 +86,7 @@ export function MenuProductCard({
           sizes="96px"
         />
         {hasDiscount && (
-          <span className="absolute left-0 top-0 rounded-br-lg bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
+          <span className="absolute left-0 top-0 rounded-br-lg bg-primary px-1.5 py-0.5 text-[11px] font-bold text-primary-foreground">
             特惠
           </span>
         )}
@@ -101,13 +101,13 @@ export function MenuProductCard({
           )}
           <div className="mt-1 flex flex-wrap items-center gap-1">
             {soldCount && soldCount > 0 && (
-              <span className="text-[10px] text-primary font-medium">{t("monthlySales", { count: soldCount })}</span>
+              <span className="text-[11px] text-primary font-medium">{t("monthlySales", { count: soldCount })}</span>
             )}
             {servingSize && (
-              <span className="text-[10px] text-muted-foreground">{servingSize}</span>
+              <span className="text-[11px] text-muted-foreground">{servingSize}</span>
             )}
             {tags?.slice(0, 2).map((tag) => (
-              <span key={tag} className="rounded bg-muted px-1 py-0.5 text-[10px] text-muted-foreground">
+              <span key={tag} className="rounded-full bg-muted px-1 py-0.5 text-[11px] text-muted-foreground">
                 {tag}
               </span>
             ))}
@@ -117,7 +117,7 @@ export function MenuProductCard({
         {/* 价格 + 加购 */}
         <div className="mt-1.5 flex items-end justify-between">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-bold text-primary">{formatPrice(price)}</span>
+            <span className="text-base font-bold text-primary/90">{formatPrice(price)}</span>
             {hasDiscount && (
               <span className="text-xs text-muted-foreground/60 line-through">
                 {formatPrice(originalPrice!)}
@@ -131,7 +131,7 @@ export function MenuProductCard({
               <div className="flex items-center gap-1 animate-expand overflow-hidden">
                 <button
                   onClick={handleMinus}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-150 hover:bg-muted active:scale-90"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-all duration-150 hover:bg-muted active:scale-90"
                 >
                   <Minus className="h-3.5 w-3.5" />
                 </button>
@@ -141,7 +141,7 @@ export function MenuProductCard({
                 <button
                   ref={btnRef}
                   onClick={handleAdd}
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-150 active:scale-90"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-150 active:scale-90"
                 >
                   <Plus className="h-3.5 w-3.5" />
                 </button>
@@ -150,7 +150,7 @@ export function MenuProductCard({
               <button
                 ref={btnRef}
                 onClick={handleAdd}
-                className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-200 hover:shadow-md hover:scale-110 active:scale-90"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-200 hover:shadow-md hover:scale-110 active:scale-90"
               >
                 <Plus className="h-4 w-4" />
               </button>

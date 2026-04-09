@@ -78,6 +78,7 @@
     "itemCount": "{count}件",
     "items": "{count} 件",
     "clear": "清空",
+    "clearConfirm": "确定要清空购物车中的所有商品吗？",
     "clearCart": "清空购物车",
     "subtotal": "商品小计",
     "itemsTotal": "商品合计",
@@ -124,6 +125,7 @@
     "orderFailed": "下单失败",
     "networkError": "网络错误，请重试",
     "paymentFailed": "支付失败",
+    "paymentCreateFailed": "无法初始化支付，请重试。",
     "savedAddresses": "已保存地址",
     "newAddress": "填写新地址",
     "selectAddress": "选择配送地址",
@@ -133,7 +135,11 @@
     "couponInvalid": "优惠码无效",
     "couponExpired": "优惠码已过期",
     "couponMinOrder": "未达到最低消费 {amount}",
-    "discount": "优惠"
+    "discount": "优惠",
+    "securePayment": "安全支付",
+    "qualityGuarantee": "品质保证",
+    "easyRefund": "不满意退款",
+    "couponAvailable": "你有可用优惠券"
   },
   "auth": {
     "welcome": "欢迎回来",
@@ -164,7 +170,9 @@
     "demoAccount": "Demo 账号：",
     "demoInfo": "邮箱：demo@dongfang.com | 密码：123456",
     "welcomeBonus": "🎉 欢迎！已赠送 100 积分 + $5 首单优惠券",
-    "couponCode": "优惠码：{code}"
+    "couponCode": "优惠码：{code}",
+    "registerBonus": "注册即送好礼",
+    "registerBonusDesc": "100 积分 + $5 首单优惠券，立即注册领取！"
   },
   "account": {
     "title": "个人中心",
@@ -198,7 +206,11 @@
     "viewOrder": "查看订单",
     "reorder": "再来一单",
     "orderNo": "订单编号",
-    "backToHome": "返回首页"
+    "backToHome": "返回首页",
+    "estimatedTime": "预计送达时间",
+    "pointsEarned": "本单获得 {points} 积分",
+    "thankYou": "感谢你的订购！",
+    "shareHint": "分享给好友，一起享受美味点心"
   },
   "orderStatus": {
     "PENDING": "待支付",

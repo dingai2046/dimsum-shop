@@ -57,7 +57,7 @@ export function MenuPage({ categories, hotProducts }: MenuPageProps) {
   };
 
   return (
-    <div className="pb-20">
+    <div className="pb-24">
       {/* 商店状态 */}
       <StoreStatusBar />
 

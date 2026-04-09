@@ -76,10 +76,6 @@ export function LoginForm() {
         <Button type="submit" disabled={loading} className="h-12 w-full rounded-full text-base font-semibold">
           {loading ? t("loggingIn") : t("loginBtn")}
         </Button>
-        <div className="rounded-xl bg-muted p-3 text-xs text-muted-foreground">
-          <p className="font-medium">{t("demoAccount")}</p>
-          <p>{t("demoInfo")}</p>
-        </div>
       </form>
     </div>
   );

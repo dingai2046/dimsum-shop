@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Heart } from "lucide-react";
+import { useRouter, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 interface FavoriteButtonProps {
@@ -22,6 +23,8 @@ export function FavoriteButton({
   const [favId, setFavId] = useState(initialFavoriteId);
   const [animating, setAnimating] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const toggle = useCallback(async () => {
     if (loading) return;
@@ -49,7 +52,7 @@ export function FavoriteButton({
           setFavId(data.favorite.id);
         } else if (res.status === 401) {
           // 未登录，跳转登录
-          window.location.href = "/login?callbackUrl=" + encodeURIComponent(window.location.pathname);
+          router.push("/login?callbackUrl=" + encodeURIComponent(pathname));
           return;
         }
       }
@@ -59,7 +62,7 @@ export function FavoriteButton({
       setLoading(false);
       setTimeout(() => setAnimating(false), 300);
     }
-  }, [favorited, favId, productId, loading]);
+  }, [favorited, favId, productId, loading, router, pathname]);
 
   return (
     <button

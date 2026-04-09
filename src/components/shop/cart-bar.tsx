@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import { ShoppingBag } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useCart, FREE_DELIVERY_THRESHOLD, MIN_ORDER_AMOUNT } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
@@ -13,6 +14,7 @@ interface CartBarProps {
 
 export function CartBar({ onCartClick }: CartBarProps) {
   const { totalItems, totalPrice, subtotal, deliveryFee, deliveryType } = useCart();
+  const router = useRouter();
   const t = useTranslations("cart");
   const ts = useTranslations("store");
   const prevItemsRef = useRef(totalItems);
@@ -45,7 +47,7 @@ export function CartBar({ onCartClick }: CartBarProps) {
         >
           <ShoppingBag className="h-5 w-5 text-primary-foreground" />
           {totalItems > 0 && (
-            <span ref={badgeRef} className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white animate-badge-in">
+            <span ref={badgeRef} className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[11px] font-bold text-white animate-badge-in">
               {totalItems > 99 ? "99+" : totalItems}
             </span>
           )}
@@ -73,13 +75,13 @@ export function CartBar({ onCartClick }: CartBarProps) {
                       style={{ width: `${Math.min((subtotal / FREE_DELIVERY_THRESHOLD) * 100, 100)}%` }}
                     />
                   </div>
-                  <span className="shrink-0 text-[10px] text-primary-foreground/60">
+                  <span className="shrink-0 text-[11px] text-primary-foreground/60">
                     {t("freeDeliveryProgress", { amount: formatPrice(FREE_DELIVERY_THRESHOLD - subtotal) })}
                   </span>
                 </div>
               )}
               {deliveryType === "delivery" && subtotal >= FREE_DELIVERY_THRESHOLD && (
-                <span className="mt-0.5 text-[10px] text-green-400">🎉 {t("freeDeliveryReached")}</span>
+                <span className="mt-0.5 text-[11px] text-green-400">🎉 {t("freeDeliveryReached")}</span>
               )}
             </>
           ) : (
@@ -91,7 +93,7 @@ export function CartBar({ onCartClick }: CartBarProps) {
           const belowMinOrder = deliveryType === "delivery" && subtotal < MIN_ORDER_AMOUNT && totalItems > 0;
           return (
             <button
-              onClick={() => { if (totalItems > 0 && !belowMinOrder) window.location.href = "/checkout"; }}
+              onClick={() => { if (totalItems > 0 && !belowMinOrder) router.push("/checkout"); }}
               disabled={totalItems === 0 || belowMinOrder}
               className={cn(
                 "shrink-0 rounded-full px-6 py-2.5 text-sm font-bold transition-all duration-200",

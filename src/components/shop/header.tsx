@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { User, LogOut, ClipboardList } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
@@ -11,8 +12,15 @@ export function Header() {
   const { data: session } = useSession();
   const t = useTranslations("nav");
 
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className={`sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-shadow ${scrolled ? "shadow-sm" : ""}`}>
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
@@ -23,10 +31,10 @@ export function Header() {
             東方點心
           </span>
           <div className="hidden flex-col md:flex">
-            <span className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase leading-tight">
+            <span className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase leading-tight">
               Dong Fang
             </span>
-            <span className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase leading-tight">
+            <span className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase leading-tight">
               Dim Sim
             </span>
           </div>

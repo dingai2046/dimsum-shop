@@ -109,9 +109,9 @@ export function MenuSection({ categories, onProductClick }: MenuSectionProps) {
             ref={(el) => {
               if (el) sectionRefs.current.set(cat.id, el);
             }}
-            className="py-4"
+            className="pt-6 pb-3"
           >
-            <h2 className="mb-2 flex items-center gap-1.5 text-base font-bold">
+            <h2 className="mb-2 flex items-center gap-1.5 text-lg font-bold">
               {cat.icon && <span>{cat.icon}</span>}
               {cat.name}
               <span className="text-xs font-normal text-muted-foreground">

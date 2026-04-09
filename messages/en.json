@@ -78,6 +78,7 @@
     "itemCount": "{count} items",
     "items": "{count} items",
     "clear": "Clear",
+    "clearConfirm": "Are you sure you want to clear all items from the cart?",
     "clearCart": "Clear cart",
     "subtotal": "Subtotal",
     "itemsTotal": "Items total",
@@ -124,6 +125,7 @@
     "orderFailed": "Order failed",
     "networkError": "Network error, please retry",
     "paymentFailed": "Payment failed",
+    "paymentCreateFailed": "Unable to initialize payment. Please try again.",
     "savedAddresses": "Saved Addresses",
     "newAddress": "New Address",
     "selectAddress": "Select delivery address",
@@ -133,7 +135,11 @@
     "couponInvalid": "Invalid promo code",
     "couponExpired": "Promo code expired",
     "couponMinOrder": "Min. order {amount} required",
-    "discount": "Discount"
+    "discount": "Discount",
+    "securePayment": "Secure Payment",
+    "qualityGuarantee": "Quality Guaranteed",
+    "easyRefund": "Easy Refund",
+    "couponAvailable": "You have an available coupon"
   },
   "auth": {
     "welcome": "Welcome Back",
@@ -164,7 +170,9 @@
     "demoAccount": "Demo Account:",
     "demoInfo": "Email: demo@dongfang.com | Password: 123456",
     "welcomeBonus": "🎉 Welcome! 100 points + $5 coupon granted",
-    "couponCode": "Promo code: {code}"
+    "couponCode": "Promo code: {code}",
+    "registerBonus": "Sign Up & Get Rewards",
+    "registerBonusDesc": "100 points + $5 off coupon. Sign up now!"
   },
   "account": {
     "title": "My Account",
@@ -198,7 +206,11 @@
     "viewOrder": "View Order",
     "reorder": "Reorder",
     "orderNo": "Order No.",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "estimatedTime": "Estimated Delivery",
+    "pointsEarned": "Earned {points} points",
+    "thankYou": "Thank you for your order!",
+    "shareHint": "Share with friends and enjoy dim sum together"
   },
   "orderStatus": {
     "PENDING": "Pending",

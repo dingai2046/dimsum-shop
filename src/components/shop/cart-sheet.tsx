@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import { Minus, Plus, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { useCart, FREE_DELIVERY_THRESHOLD } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
 import { CartRecommendations } from "@/components/shop/cart-recommendations";
@@ -16,7 +17,16 @@ interface CartSheetProps {
 export function CartSheet({ open, onClose }: CartSheetProps) {
   const { items, totalItems, totalPrice, subtotal, deliveryFee, deliveryType, updateQuantity, clearCart } = useCart();
   const t = useTranslations("cart");
+  const router = useRouter();
   const sheetRef = useRef<HTMLDivElement>(null);
+
+  // ESC 键关闭
+  useEffect(() => {
+    if (!open) return;
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [open, onClose]);
 
   // 拖拽关闭手势
   useEffect(() => {
@@ -31,7 +41,9 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
     const onTouchMove = (e: TouchEvent) => {
       currentY = e.touches[0].clientY;
       const diff = currentY - startY;
-      if (diff > 0) {
+      // Only drag if scrolled to top and dragging down
+      const scrollContainer = sheet.querySelector('.max-h-\\[45vh\\]') as HTMLElement;
+      if (diff > 0 && (!scrollContainer || scrollContainer.scrollTop <= 0)) {
         sheet.style.transform = `translateY(${diff}px)`;
         sheet.style.transition = "none";
       }
@@ -68,7 +80,10 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
       {/* Sheet */}
       <div
         ref={sheetRef}
-        className="fixed inset-x-0 bottom-0 z-[61] max-h-[70vh] overflow-hidden rounded-t-2xl bg-background shadow-2xl animate-sheet-up md:inset-x-auto md:left-1/2 md:max-w-lg md:-translate-x-1/2"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Shopping cart"
+        className="fixed inset-x-0 bottom-0 z-[61] max-h-[70vh] overflow-hidden rounded-t-3xl bg-background shadow-2xl animate-sheet-up md:inset-x-auto md:left-1/2 md:max-w-lg md:-translate-x-1/2"
       >
         {/* 拖拽手柄 */}
         <div className="flex justify-center py-2">
@@ -84,7 +99,7 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
           <div className="flex items-center gap-2">
             {items.length > 0 && (
               <button
-                onClick={clearCart}
+                onClick={() => { if (confirm(t("clearConfirm"))) clearCart(); }}
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
               >
                 <Trash2 className="h-3.5 w-3.5" />
@@ -129,14 +144,14 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full border border-border text-muted-foreground transition-all active:scale-90"
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-all active:scale-90"
                     >
                       <Minus className="h-3 w-3" />
                     </button>
                     <span className="w-5 text-center text-sm font-bold tabular-nums">{item.quantity}</span>
                     <button
                       onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all active:scale-90"
+                      className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all active:scale-90"
                     >
                       <Plus className="h-3 w-3" />
                     </button>
@@ -190,6 +205,12 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
               <span className="font-bold">{t("total")}</span>
               <span className="text-xl font-bold text-primary tabular-nums">{formatPrice(totalPrice)}</span>
             </div>
+            <button
+              onClick={() => { onClose(); router.push("/checkout"); }}
+              className="mt-3 w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-base transition-all active:scale-[0.98]"
+            >
+              {t("checkout")} {formatPrice(totalPrice)}
+            </button>
           </div>
         )}
       </div>

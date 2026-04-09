@@ -37,6 +37,14 @@ export function ProductDetailSheet({ product, open, onClose, isFavorited, favori
   const t = useTranslations("product");
   const tMenu = useTranslations("menu");
 
+  // ESC 键关闭
+  useEffect(() => {
+    if (!open) return;
+    const handleEsc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [open, onClose]);
+
   // 拖拽关闭
   useEffect(() => {
     if (!open || !sheetRef.current) return;
@@ -48,7 +56,9 @@ export function ProductDetailSheet({ product, open, onClose, isFavorited, favori
     const onTouchMove = (e: TouchEvent) => {
       currentY = e.touches[0].clientY;
       const diff = currentY - startY;
-      if (diff > 0) {
+      // Only drag if scrolled to top and dragging down
+      const scrollContainer = sheet.querySelector('[class*="overflow-y-auto"]') as HTMLElement;
+      if (diff > 0 && (!scrollContainer || scrollContainer.scrollTop <= 0)) {
         sheet.style.transform = `translateY(${diff}px)`;
         sheet.style.transition = "none";
       }
@@ -100,6 +110,9 @@ export function ProductDetailSheet({ product, open, onClose, isFavorited, favori
       {/* Sheet */}
       <div
         ref={sheetRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Product detail"
         className="fixed inset-x-0 bottom-0 z-[61] max-h-[85vh] overflow-hidden rounded-t-3xl bg-background shadow-2xl animate-sheet-up md:inset-x-auto md:left-1/2 md:max-w-lg md:-translate-x-1/2"
       >
         {/* 拖拽手柄 */}
@@ -123,6 +136,7 @@ export function ProductDetailSheet({ product, open, onClose, isFavorited, favori
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, 512px"
+            loading="eager"
           />
           {/* 底部渐变 */}
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent" />
@@ -196,7 +210,7 @@ export function ProductDetailSheet({ product, open, onClose, isFavorited, favori
               { icon: "👨‍🍳", label: t("handmade") },
               { icon: "✅", label: t("quality") },
             ].map((item) => (
-              <span key={item.label} className="rounded-lg bg-muted/60 px-2.5 py-1.5 text-xs text-muted-foreground">
+              <span key={item.label} className="rounded-lg border border-accent/30 bg-accent/5 px-2.5 py-1.5 text-xs text-foreground">
                 {item.icon} {item.label}
               </span>
             ))}
@@ -219,7 +233,7 @@ export function ProductDetailSheet({ product, open, onClose, isFavorited, favori
               onClick={handleAdd}
               className="flex-1 rounded-full bg-primary py-3.5 text-center font-bold text-primary-foreground shadow-lg transition-all duration-200 hover:shadow-xl active:scale-[0.97]"
             >
-              {tMenu("addToCart")} {formatPrice(product.price * (quantity > 0 ? 1 : 1))}
+              {tMenu("addToCart")} {formatPrice(product.price)}
             </button>
           </div>
         </div>

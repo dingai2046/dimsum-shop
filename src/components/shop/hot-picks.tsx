@@ -30,8 +30,8 @@ export function HotPicks({ products }: HotPicksProps) {
     <section className="py-4">
       <div className="mx-auto max-w-7xl px-4">
         <h2 className="mb-3 flex items-center gap-1.5 text-base font-bold">
-          <span className="inline-block animate-pulse">🔥</span>
-          {t("hotPicks")}
+          <span className="inline-block">🔥</span>
+          <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{t("hotPicks")}</span>
         </h2>
 
         {/* 横向滚动卡片 */}
@@ -85,7 +85,7 @@ function HotPickCard({
 
   return (
     <div
-      className="w-28 shrink-0 snap-start sm:w-32 animate-fade-up"
+      className="w-32 shrink-0 snap-start sm:w-36 animate-fade-up"
       style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="relative aspect-square overflow-hidden rounded-xl bg-muted group">
@@ -102,7 +102,7 @@ function HotPickCard({
         <button
           ref={btnRef}
           onClick={onAdd}
-          className="absolute bottom-1.5 right-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all duration-200 hover:scale-110 active:scale-90"
+          className="absolute bottom-1.5 right-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all duration-200 hover:scale-110 active:scale-90"
         >
           {quantity > 0 ? (
             <span className="text-xs font-bold">{quantity}</span>
@@ -114,7 +114,7 @@ function HotPickCard({
       <p className="mt-1.5 text-xs font-medium line-clamp-1">{product.name}</p>
       <div className="flex items-baseline gap-1">
         <span className="text-xs font-bold text-primary">{formatPrice(product.price)}</span>
-        <span className="text-[10px] text-muted-foreground">{t("monthlySales", { count: product.soldCount })}</span>
+        <span className="text-[11px] text-muted-foreground">{t("monthlySales", { count: product.soldCount })}</span>
       </div>
     </div>
   );
