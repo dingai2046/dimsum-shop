@@ -116,7 +116,7 @@ export default function CheckoutPage() {
 
       if (!orderRes.ok) {
         const data = await orderRes.json();
-        alert(data.error || "下单失败");
+        alert((data.error || "下单失败") + (data.detail ? "\n" + data.detail : ""));
         setLoading(false);
         return;
       }
