@@ -67,7 +67,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {
-    console.error("创建订单失败:", error);
-    return NextResponse.json({ error: "创建订单失败" }, { status: 500 });
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("创建订单失败:", message, error);
+    return NextResponse.json({ error: "创建订单失败", detail: message }, { status: 500 });
   }
 }
