@@ -43,8 +43,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
-        token.role = (user as { role?: string }).role || "CUSTOMER";
+        // Credentials 登录：user.id 就是数据库 ID
+        if (account?.provider === "credentials") {
+          token.id = user.id;
+          token.role = (user as { role?: string }).role || "CUSTOMER";
+        }
+
+        // Google OAuth 登录：需要从数据库查真实 ID
+        if (account?.provider === "google" && token.email) {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: token.email as string },
+            select: { id: true, role: true },
+          });
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.role = dbUser.role;
+          }
+        }
+
         if (account) {
           token.provider = account.provider;
         }
@@ -59,7 +75,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
     async signIn({ account, profile }) {
-      // Google 首次登录时，自动创建或关联用户
       if (account?.provider === "google" && profile?.email) {
         await prisma.user.upsert({
           where: { email: profile.email },
