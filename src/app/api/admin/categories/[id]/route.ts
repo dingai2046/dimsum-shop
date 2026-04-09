@@ -13,25 +13,16 @@ export async function PUT(
     }
 
     const { id } = await params;
-    const body = await request.json();
-    const product = await prisma.product.update({
+    const { name, slug, description, icon, sortOrder } = await request.json();
+
+    const category = await prisma.category.update({
       where: { id },
-      data: {
-        name: body.name,
-        slug: body.slug,
-        description: body.description || null,
-        price: body.price,
-        originalPrice: body.originalPrice || null,
-        image: body.image || null,
-        images: body.image ? [body.image] : [],
-        categoryId: body.categoryId,
-        stock: body.stock ?? 0,
-        isActive: body.isActive ?? true,
-      },
+      data: { name, slug, description, icon, sortOrder },
     });
-    return NextResponse.json(product);
+
+    return NextResponse.json({ category });
   } catch (error) {
-    console.error("更新产品失败:", error);
+    console.error("更新分类失败:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }
@@ -47,10 +38,17 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    await prisma.product.delete({ where: { id } });
+
+    // 检查分类下是否有产品
+    const productCount = await prisma.product.count({ where: { categoryId: id } });
+    if (productCount > 0) {
+      return NextResponse.json({ error: `该分类下还有 ${productCount} 个产品，请先移除` }, { status: 400 });
+    }
+
+    await prisma.category.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("删除产品失败:", error);
+    console.error("删除分类失败:", error);
     return NextResponse.json({ error: "删除失败" }, { status: 500 });
   }
 }

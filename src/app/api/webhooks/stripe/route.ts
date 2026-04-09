@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
+import { prisma } from "@/lib/prisma";
 import type Stripe from "stripe";
 
 export async function POST(request: Request) {
@@ -23,26 +24,51 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "签名无效" }, { status: 400 });
   }
 
-  // 处理支付事件
   switch (event.type) {
     case "payment_intent.succeeded": {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       const orderNo = paymentIntent.metadata.orderNo;
       console.log(`支付成功: 订单 ${orderNo}, PaymentIntent ${paymentIntent.id}`);
 
-      // TODO: 更新订单状态为 PAID
-      // await prisma.order.update({
-      //   where: { orderNo },
-      //   data: { status: "PAID", paymentId: paymentIntent.id },
-      // });
+      if (orderNo) {
+        // 更新订单状态为 PAID
+        const order = await prisma.order.update({
+          where: { orderNo },
+          data: { status: "PAID", paymentId: paymentIntent.id },
+        });
+
+        // 记录积分（每消费 1 元获 1 积分）
+        const earnedPoints = Math.floor(order.subtotal / 100);
+        if (earnedPoints > 0) {
+          await prisma.pointsRecord.create({
+            data: {
+              userId: order.userId,
+              orderId: order.id,
+              points: earnedPoints,
+              type: "EARN",
+              description: `订单 ${orderNo} 消费获得积分`,
+            },
+          });
+          await prisma.user.update({
+            where: { id: order.userId },
+            data: { points: { increment: earnedPoints } },
+          });
+        }
+      }
       break;
     }
 
     case "payment_intent.payment_failed": {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       const orderNo = paymentIntent.metadata.orderNo;
-      console.log(`支付失败: 订单 ${orderNo}`);
-      // TODO: 记录支付失败日志
+      console.error(`支付失败: 订单 ${orderNo}, 原因: ${paymentIntent.last_payment_error?.message}`);
+
+      if (orderNo) {
+        await prisma.order.update({
+          where: { orderNo },
+          data: { status: "CANCELLED" },
+        });
+      }
       break;
     }
 

@@ -4,8 +4,9 @@ import { getOrders } from "@/lib/api/orders";
 import { formatPrice } from "@/lib/utils/format";
 
 export default async function AdminDashboard() {
-  const [productCount, orders] = await Promise.all([
+  const [productCount, userCount, orders] = await Promise.all([
     prisma.product.count(),
+    prisma.user.count(),
     getOrders(),
   ]);
   const totalRevenue = orders
@@ -16,7 +17,7 @@ export default async function AdminDashboard() {
   const stats = [
     { label: "总产品数", value: productCount.toString(), icon: Package, color: "text-blue-600 bg-blue-50" },
     { label: "总订单数", value: orders.length.toString(), icon: ShoppingCart, color: "text-orange-600 bg-orange-50" },
-    { label: "注册用户", value: "2", icon: Users, color: "text-green-600 bg-green-50" },
+    { label: "注册用户", value: userCount.toString(), icon: Users, color: "text-green-600 bg-green-50" },
     { label: "总销售额", value: formatPrice(totalRevenue), icon: TrendingUp, color: "text-primary bg-primary/10" },
   ];
 

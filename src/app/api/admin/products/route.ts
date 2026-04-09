@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
+    const session = await auth();
+    if (!session?.user || (session.user as { role?: string }).role !== "ADMIN") {
+      return NextResponse.json({ error: "无权限" }, { status: 403 });
+    }
+
     const body = await request.json();
     const product = await prisma.product.create({
       data: {
