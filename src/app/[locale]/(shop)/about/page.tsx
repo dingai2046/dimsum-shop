@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { getSiteSettings } from "@/lib/api/site-settings";
 
 export const metadata: Metadata = {
@@ -11,13 +12,24 @@ export default async function AboutPage() {
   const settings = await getSiteSettings();
   const { about, contact } = settings;
 
+  return <AboutContent about={about} contact={contact} />;
+}
+
+function AboutContent({ about, contact }: {
+  about: { title: string; subtitle: string; highlights: { value: string; label: string }[]; content: string };
+  contact: { address: string; phone: string; email: string; hours: string };
+}) {
+  const t = useTranslations("about");
+  const tFooter = useTranslations("footer");
+  const tCommon = useTranslations("common");
+
   return (
     <div>
       {/* Hero */}
       <section className="relative h-[40vh] min-h-[280px] overflow-hidden">
         <Image
           src="/images/hero/dimsum-hero.jpg"
-          alt="東方點心店铺"
+          alt={tCommon("brand")}
           fill
           className="object-cover"
           priority
@@ -54,19 +66,19 @@ export default async function AboutPage() {
 
         {/* 联系信息 */}
         <div className="mt-12 rounded-2xl bg-muted/50 p-8">
-          <h2 className="mb-6 text-xl font-bold">联系我们</h2>
+          <h2 className="mb-6 text-xl font-bold">{t("contactUs")}</h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex items-start gap-3">
               <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div>
-                <p className="font-medium">地址</p>
+                <p className="font-medium">{tFooter("address")}</p>
                 <p className="text-sm text-muted-foreground">{contact.address}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <Phone className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div>
-                <p className="font-medium">电话</p>
+                <p className="font-medium">{tFooter("phone")}</p>
                 <a href={`tel:${contact.phone.replace(/\s/g, "")}`} className="text-sm text-muted-foreground hover:text-primary">
                   {contact.phone}
                 </a>
@@ -75,7 +87,7 @@ export default async function AboutPage() {
             <div className="flex items-start gap-3">
               <Mail className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div>
-                <p className="font-medium">邮箱</p>
+                <p className="font-medium">{tFooter("emailLabel")}</p>
                 <a href={`mailto:${contact.email}`} className="text-sm text-muted-foreground hover:text-primary">
                   {contact.email}
                 </a>
@@ -84,7 +96,7 @@ export default async function AboutPage() {
             <div className="flex items-start gap-3">
               <Clock className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div>
-                <p className="font-medium">营业时间</p>
+                <p className="font-medium">{tFooter("hoursLabel")}</p>
                 <p className="text-sm text-muted-foreground">{contact.hours}</p>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/shop/product-card";
 
@@ -31,6 +32,24 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       })
     : [];
 
+  return <SearchContent query={query} products={products} />;
+}
+
+function SearchContent({ query, products }: {
+  query: string;
+  products: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    price: number;
+    originalPrice: number | null;
+    image: string | null;
+    category: { name: string };
+  }>;
+}) {
+  const t = useTranslations("search");
+  const tProduct = useTranslations("product");
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
       {/* 搜索框 */}
@@ -41,7 +60,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             name="q"
             type="search"
             defaultValue={query}
-            placeholder="搜索点心、水饺、云吞..."
+            placeholder={t("placeholder")}
             autoFocus
             className="h-12 w-full rounded-full border border-border bg-card pl-12 pr-4 text-base shadow-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"
           />
@@ -52,7 +71,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       {query ? (
         <>
           <p className="mb-6 text-sm text-muted-foreground">
-            搜索 &ldquo;{query}&rdquo; 找到 {products.length} 个结果
+            {t("resultsCount", { query, count: products.length })}
           </p>
           {products.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 md:gap-5">
@@ -71,16 +90,16 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </div>
           ) : (
             <div className="py-16 text-center">
-              <p className="text-lg text-muted-foreground">没有找到相关产品</p>
+              <p className="text-lg text-muted-foreground">{t("noResults")}</p>
               <Link href="/products" className="mt-3 inline-block text-sm font-medium text-primary">
-                浏览全部产品
+                {t("browseAll")}
               </Link>
             </div>
           )}
         </>
       ) : (
         <div className="py-16 text-center">
-          <p className="text-lg text-muted-foreground">输入关键词搜索点心</p>
+          <p className="text-lg text-muted-foreground">{t("inputHint")}</p>
         </div>
       )}
     </div>

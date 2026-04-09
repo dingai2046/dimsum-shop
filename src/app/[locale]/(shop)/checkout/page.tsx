@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 import { ArrowLeft, MapPin, Store, Minus, Plus, CreditCard, Loader2 } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ function PaymentForm({ orderNo, onSuccess }: { orderNo: string; onSuccess: () =>
   const elements = useElements();
   const [paying, setPaying] = useState(false);
   const [payError, setPayError] = useState("");
+  const t = useTranslations("checkout");
 
   async function handlePay(e: React.FormEvent) {
     e.preventDefault();
@@ -37,7 +39,7 @@ function PaymentForm({ orderNo, onSuccess }: { orderNo: string; onSuccess: () =>
     });
 
     if (error) {
-      setPayError(error.message || "支付失败");
+      setPayError(error.message || t("paymentFailed"));
       setPaying(false);
     }
     // 如果成功，会自动跳转到 return_url
@@ -51,9 +53,9 @@ function PaymentForm({ orderNo, onSuccess }: { orderNo: string; onSuccess: () =>
       )}
       <Button type="submit" disabled={!stripe || paying} className="w-full h-12 rounded-xl text-base font-bold">
         {paying ? (
-          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />支付中...</>
+          <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t("paying")}</>
         ) : (
-          <><CreditCard className="mr-2 h-4 w-4" />确认支付</>
+          <><CreditCard className="mr-2 h-4 w-4" />{t("payNow")}</>
         )}
       </Button>
     </form>
@@ -65,6 +67,10 @@ export default function CheckoutPage() {
   const {
     items, totalItems, totalPrice, deliveryType, deliveryFee, updateQuantity, clearCart,
   } = useCart();
+  const t = useTranslations("checkout");
+  const tStore = useTranslations("store");
+  const tCart = useTranslations("cart");
+  const tCommon = useTranslations("common");
 
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState("");
@@ -116,7 +122,7 @@ export default function CheckoutPage() {
 
       if (!orderRes.ok) {
         const data = await orderRes.json();
-        alert((data.error || "下单失败") + (data.detail ? "\n" + data.detail : ""));
+        alert((data.error || t("orderFailed")) + (data.detail ? "\n" + data.detail : ""));
         setLoading(false);
         return;
       }
@@ -147,7 +153,7 @@ export default function CheckoutPage() {
       setStep("payment");
       clearCart();
     } catch {
-      alert("网络错误，请重试");
+      alert(t("networkError"));
     } finally {
       setLoading(false);
     }
@@ -156,8 +162,8 @@ export default function CheckoutPage() {
   if (items.length === 0 && step === "info") {
     return (
       <div className="mx-auto max-w-lg px-4 py-20 text-center">
-        <p className="text-muted-foreground">购物车为空</p>
-        <Link href="/" className="mt-2 inline-block text-sm font-medium text-primary">去选购</Link>
+        <p className="text-muted-foreground">{t("cartEmpty")}</p>
+        <Link href="/" className="mt-2 inline-block text-sm font-medium text-primary">{t("goShopping")}</Link>
       </div>
     );
   }
@@ -166,18 +172,18 @@ export default function CheckoutPage() {
     <div className="mx-auto max-w-lg px-4 py-6 pb-32">
       <Link href="/" className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" />
-        返回菜单
+        {t("backToMenu")}
       </Link>
 
       <h1 className="mb-6 text-xl font-bold">
-        {step === "info" ? "确认订单" : "支付"}
+        {step === "info" ? t("title") : t("payment")}
       </h1>
 
       {step === "payment" && clientSecret ? (
         /* Step 2: Stripe 支付 */
         <section className="rounded-xl bg-card p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">订单号: {orderNo}</span>
+            <span className="text-sm text-muted-foreground">{t("orderNo", { no: orderNo })}</span>
             <span className="text-lg font-bold text-primary">{formatPrice(totalPrice)}</span>
           </div>
           <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "stripe" } }}>
@@ -192,16 +198,16 @@ export default function CheckoutPage() {
             {deliveryType === "delivery" ? (
               <>
                 <MapPin className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">外送配送</span>
+                <span className="text-sm font-medium">{tStore("delivery")}</span>
                 <span className="text-xs text-muted-foreground">
-                  {deliveryFee > 0 ? `配送费 ${formatPrice(deliveryFee)}` : "免配送费"}
+                  {deliveryFee > 0 ? tStore("deliveryFee", { fee: formatPrice(deliveryFee) }) : tStore("freeDelivery")}
                 </span>
               </>
             ) : (
               <>
                 <Store className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">门店自取</span>
-                <span className="text-xs text-muted-foreground">免配送费</span>
+                <span className="text-sm font-medium">{tStore("pickup")}</span>
+                <span className="text-xs text-muted-foreground">{tStore("freeDelivery")}</span>
               </>
             )}
           </div>
@@ -209,16 +215,16 @@ export default function CheckoutPage() {
           {/* 联系信息 */}
           <section className="mb-4 rounded-xl bg-card p-4 shadow-sm">
             <h2 className="mb-3 text-sm font-semibold">
-              {deliveryType === "delivery" ? "配送信息" : "取餐人信息"}
+              {deliveryType === "delivery" ? t("deliveryInfo") : t("pickupInfo")}
             </h2>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1 block text-xs text-muted-foreground">姓名 *</label>
-                  <Input value={form.name} onChange={(e) => updateForm("name", e.target.value)} placeholder="收件人姓名" className="h-10 rounded-lg" />
+                  <label className="mb-1 block text-xs text-muted-foreground">{t("name")} *</label>
+                  <Input value={form.name} onChange={(e) => updateForm("name", e.target.value)} placeholder={t("name")} className="h-10 rounded-lg" />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-muted-foreground">电话 *</label>
+                  <label className="mb-1 block text-xs text-muted-foreground">{t("phone")} *</label>
                   <Input value={form.phone} onChange={(e) => updateForm("phone", e.target.value)} placeholder="04XX XXX XXX" className="h-10 rounded-lg" />
                 </div>
               </div>
@@ -226,26 +232,26 @@ export default function CheckoutPage() {
               {deliveryType === "delivery" && (
                 <>
                   <div>
-                    <label className="mb-1 block text-xs text-muted-foreground">街道地址 *</label>
+                    <label className="mb-1 block text-xs text-muted-foreground">{t("street")} *</label>
                     <Input value={form.street1} onChange={(e) => updateForm("street1", e.target.value)} placeholder="123 Smith Street" className="h-10 rounded-lg" />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs text-muted-foreground">Unit/Apt (可选)</label>
+                    <label className="mb-1 block text-xs text-muted-foreground">{t("unit")}</label>
                     <Input value={form.street2} onChange={(e) => updateForm("street2", e.target.value)} placeholder="Unit 5, Level 2" className="h-10 rounded-lg" />
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="mb-1 block text-xs text-muted-foreground">Suburb *</label>
+                      <label className="mb-1 block text-xs text-muted-foreground">{t("suburb")} *</label>
                       <Input value={form.suburb} onChange={(e) => updateForm("suburb", e.target.value)} placeholder="Fitzroy" className="h-10 rounded-lg" />
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs text-muted-foreground">State *</label>
+                      <label className="mb-1 block text-xs text-muted-foreground">{t("state")} *</label>
                       <select value={form.state} onChange={(e) => updateForm("state", e.target.value)} className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm">
                         {AU_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs text-muted-foreground">Postcode *</label>
+                      <label className="mb-1 block text-xs text-muted-foreground">{t("postcode")} *</label>
                       <Input value={form.postcode} onChange={(e) => updateForm("postcode", e.target.value)} placeholder="3065" className="h-10 rounded-lg" maxLength={4} />
                     </div>
                   </div>
@@ -254,9 +260,9 @@ export default function CheckoutPage() {
 
               {deliveryType === "pickup" && (
                 <div className="rounded-lg bg-muted/50 p-3">
-                  <p className="text-sm font-medium">取餐地址</p>
+                  <p className="text-sm font-medium">{t("pickupAddress")}</p>
                   <p className="text-xs text-muted-foreground">123 Smith St, Fitzroy VIC 3065</p>
-                  <p className="text-xs text-muted-foreground">营业时间：10:00 - 21:00</p>
+                  <p className="text-xs text-muted-foreground">{t("businessHours", { hours: "10:00 - 21:00" })}</p>
                 </div>
               )}
             </div>
@@ -264,7 +270,7 @@ export default function CheckoutPage() {
 
           {/* 商品列表 */}
           <section className="mb-4 rounded-xl bg-card p-4 shadow-sm">
-            <h2 className="mb-3 text-sm font-semibold">商品清单 ({totalItems}件)</h2>
+            <h2 className="mb-3 text-sm font-semibold">{t("itemList")} ({tCart("itemCount", { count: totalItems })})</h2>
             <div className="divide-y divide-border/50">
               {items.map((item) => (
                 <div key={item.productId} className="flex items-center gap-3 py-2.5">
@@ -291,11 +297,11 @@ export default function CheckoutPage() {
 
           {/* 备注 */}
           <section className="mb-4 rounded-xl bg-card p-4 shadow-sm">
-            <label className="mb-2 block text-sm font-semibold">订单备注</label>
+            <label className="mb-2 block text-sm font-semibold">{t("orderNote")}</label>
             <textarea
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="备注口味偏好、过敏信息等（选填）"
+              placeholder={t("notePlaceholder")}
               className="w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground/50 focus:border-ring focus:ring-1 focus:ring-ring"
               rows={2}
             />
@@ -305,17 +311,17 @@ export default function CheckoutPage() {
           <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background px-4 py-3 md:static md:mt-4 md:rounded-xl md:border md:shadow-sm">
             <div className="mx-auto max-w-lg space-y-1.5">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">商品小计</span>
+                <span className="text-muted-foreground">{tCart("subtotal")}</span>
                 <span>{formatPrice(totalPrice - deliveryFee)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">配送费</span>
+                <span className="text-muted-foreground">{tCart("deliveryFee")}</span>
                 <span className={deliveryFee === 0 ? "text-green-600" : ""}>
-                  {deliveryFee === 0 ? "免费" : formatPrice(deliveryFee)}
+                  {deliveryFee === 0 ? tCommon("free") : formatPrice(deliveryFee)}
                 </span>
               </div>
               <div className="flex justify-between border-t border-border pt-2">
-                <span className="font-bold">合计</span>
+                <span className="font-bold">{tCart("total")}</span>
                 <span className="text-lg font-bold text-primary">{formatPrice(totalPrice)}</span>
               </div>
               <Button
@@ -324,9 +330,9 @@ export default function CheckoutPage() {
                 className="w-full h-12 rounded-xl text-base font-bold"
               >
                 {loading ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />创建订单中...</>
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t("submitting")}</>
                 ) : (
-                  `去支付 ${formatPrice(totalPrice)}`
+                  t("submitOrder", { price: formatPrice(totalPrice) })
                 )}
               </Button>
             </div>

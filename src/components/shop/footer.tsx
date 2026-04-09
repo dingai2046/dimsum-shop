@@ -1,6 +1,7 @@
 import Image from "next/image";
-import Link from "next/link";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 function SocialIcon({ name, href, children }: { name: string; href: string; children: React.ReactNode }) {
   return (
@@ -17,6 +18,11 @@ function SocialIcon({ name, href, children }: { name: string; href: string; chil
 }
 
 export function Footer() {
+  const t = useTranslations("footer");
+  const tCommon = useTranslations("common");
+  const tNav = useTranslations("nav");
+  const tProduct = useTranslations("product");
+
   return (
     <footer className="bg-foreground text-background">
       {/* 地图区域 */}
@@ -29,7 +35,7 @@ export function Footer() {
           allowFullScreen
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          title="东方点心地图位置"
+          title={tCommon("brand")}
         />
       </div>
 
@@ -39,12 +45,12 @@ export function Footer() {
           {/* 品牌 + 联系方式 */}
           <div>
             <h3 className="text-2xl font-black text-primary" style={{ fontFamily: "'KaiTi', 'STKaiti', 'SimKai', serif" }}>
-              東方點心
+              {tCommon("brand")}
             </h3>
             <p className="mt-0.5 text-xs font-semibold tracking-widest text-white/50 uppercase">
-              Dong Fang Dim Sim
+              {tCommon("brandEn")}
             </p>
-            <p className="mt-1 text-xs text-white/40">Takeaway · 批發零售</p>
+            <p className="mt-1 text-xs text-white/40">{t("takeawayWholesale")}</p>
 
             <div className="mt-5 space-y-3">
               <div className="flex items-start gap-3 text-sm">
@@ -76,14 +82,14 @@ export function Footer() {
 
           {/* 快捷链接 */}
           <div>
-            <h4 className="font-semibold">快捷链接</h4>
+            <h4 className="font-semibold">{t("quickLinks")}</h4>
             <nav className="mt-4 space-y-2.5">
               {[
-                { href: "/products", label: "全部点心" },
-                { href: "/categories/baozi", label: "包子系列" },
-                { href: "/categories/jiaozi", label: "饺子系列" },
-                { href: "/categories/shaomai", label: "烧卖系列" },
-                { href: "/about", label: "关于我们" },
+                { href: "/products" as const, label: tProduct("allProducts") },
+                { href: "/categories/baozi" as const, label: "包子系列" },
+                { href: "/categories/jiaozi" as const, label: "饺子系列" },
+                { href: "/categories/shaomai" as const, label: "烧卖系列" },
+                { href: "/about" as const, label: tNav("about") },
               ].map((link) => (
                 <Link
                   key={link.href}
@@ -98,24 +104,24 @@ export function Footer() {
 
           {/* 微信二维码 + 社交平台 */}
           <div>
-            <h4 className="font-semibold">关注我们</h4>
+            <h4 className="font-semibold">{t("followUs")}</h4>
             <div className="mt-4 flex gap-6">
               {/* 微信二维码 */}
               <div className="shrink-0">
                 <div className="overflow-hidden rounded-xl border border-white/10 bg-white p-2">
                   <Image
                     src="/images/contact/wechat-qr.svg"
-                    alt="微信二维码"
+                    alt={t("wechat")}
                     width={120}
                     height={120}
                   />
                 </div>
-                <p className="mt-2 text-center text-xs text-white/40">微信扫码添加</p>
+                <p className="mt-2 text-center text-xs text-white/40">{t("scanWeChat")}</p>
               </div>
 
               {/* 社交平台 */}
               <div>
-                <p className="mb-3 text-sm text-white/50">社交平台</p>
+                <p className="mb-3 text-sm text-white/50">{t("socialMedia")}</p>
                 <div className="flex flex-wrap gap-2">
                   {/* Instagram */}
                   <SocialIcon name="Instagram" href="https://instagram.com/dongfangdimsum">
@@ -154,10 +160,10 @@ export function Footer() {
       {/* 底部版权 */}
       <div className="border-t border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-5 pb-20 md:pb-5 flex flex-col items-center gap-2 text-xs text-white/30 md:flex-row md:justify-between">
-          <p>© 2026 東方點心 Dong Fang Dim Sim. All rights reserved.</p>
+          <p>{t("allRights", { year: new Date().getFullYear() })}</p>
           <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-white/60 transition-colors">隐私政策</Link>
-            <Link href="/terms" className="hover:text-white/60 transition-colors">服务条款</Link>
+            <Link href="/privacy" className="hover:text-white/60 transition-colors">{t("privacyPolicy")}</Link>
+            <Link href="/terms" className="hover:text-white/60 transition-colors">{t("termsOfService")}</Link>
           </div>
         </div>
       </div>

@@ -1,19 +1,12 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
 import { getOrdersByUserId, getStatusInfo } from "@/lib/api/orders";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
-
-const statusTabs = [
-  { value: "all", label: "全部" },
-  { value: "PENDING", label: "待支付" },
-  { value: "PREPARING", label: "制作中" },
-  { value: "DELIVERING", label: "配送中" },
-  { value: "DELIVERED", label: "已完成" },
-];
 
 interface OrdersPageProps {
   searchParams: Promise<{ status?: string }>;
@@ -27,6 +20,22 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
   const currentStatus = params.status || "all";
   const orders = await getOrdersByUserId(session.user.id, currentStatus);
 
+  return <OrdersPageContent currentStatus={currentStatus} orders={orders} />;
+}
+
+function OrdersPageContent({ currentStatus, orders }: { currentStatus: string; orders: Awaited<ReturnType<typeof getOrdersByUserId>> }) {
+  const t = useTranslations("orders");
+  const tAccount = useTranslations("account");
+  const tCart = useTranslations("cart");
+
+  const statusTabs = [
+    { value: "all", label: t("all") },
+    { value: "PENDING", label: t("pending") },
+    { value: "PREPARING", label: t("preparing") },
+    { value: "DELIVERING", label: t("delivering") },
+    { value: "DELIVERED", label: t("completed") },
+  ];
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <Link
@@ -34,10 +43,10 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        个人中心
+        {tAccount("title")}
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold">我的订单</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t("title")}</h1>
 
       {/* 状态 Tab */}
       <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -85,14 +94,14 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
                         <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                           <Image
                             src={snapshot.image || "/images/products/xiajiao.jpg"}
-                            alt={snapshot.name || "产品"}
+                            alt={snapshot.name || ""}
                             fill
                             className="object-cover"
                             sizes="48px"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{snapshot.name || "产品"}</p>
+                          <p className="text-sm font-medium truncate">{snapshot.name || ""}</p>
                           <p className="text-xs text-muted-foreground">x{item.quantity}</p>
                         </div>
                         <span className="text-sm font-medium">
@@ -108,7 +117,7 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
                     {new Date(order.createdAt).toLocaleDateString("zh-CN")}
                   </span>
                   <span className="text-sm">
-                    合计 <span className="font-bold text-primary">{formatPrice(order.totalAmount)}</span>
+                    {tCart("total")} <span className="font-bold text-primary">{formatPrice(order.totalAmount)}</span>
                   </span>
                 </div>
               </Link>
@@ -117,9 +126,9 @@ export default async function OrdersPage({ searchParams }: OrdersPageProps) {
         </div>
       ) : (
         <div className="py-16 text-center">
-          <p className="text-muted-foreground">暂无订单</p>
+          <p className="text-muted-foreground">{t("noOrders")}</p>
           <Link href="/products" className="mt-2 inline-block text-sm font-medium text-primary">
-            去选购
+            {t("goShopping")}
           </Link>
         </div>
       )}

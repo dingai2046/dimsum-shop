@@ -1,28 +1,31 @@
 "use client";
 
-import Link from "next/link";
 import { Menu, Package, ShoppingCart, LayoutDashboard, ArrowLeft, Grid3X3, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { href: "/admin", label: "概览", icon: LayoutDashboard },
-  { href: "/admin/products", label: "产品管理", icon: Package },
-  { href: "/admin/categories", label: "分类管理", icon: Grid3X3 },
-  { href: "/admin/orders", label: "订单管理", icon: ShoppingCart },
-  { href: "/admin/settings", label: "站点设置", icon: Settings },
-];
 
 export function AdminHeader() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const t = useTranslations("admin");
+  const tCommon = useTranslations("common");
+
+  const navItems = [
+    { href: "/admin" as const, label: t("overview"), icon: LayoutDashboard },
+    { href: "/admin/products" as const, label: t("products"), icon: Package },
+    { href: "/admin/categories" as const, label: t("categories"), icon: Grid3X3 },
+    { href: "/admin/orders" as const, label: t("orders"), icon: ShoppingCart },
+    { href: "/admin/settings" as const, label: t("settings"), icon: Settings },
+  ];
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card md:hidden">
       <div className="flex h-14 items-center justify-between px-4">
         <Link href="/admin" className="text-lg font-bold text-primary">
-          東方點心
+          {tCommon("brand")}
         </Link>
         <button
           className="rounded-lg p-2 text-muted-foreground hover:bg-muted"
@@ -60,7 +63,7 @@ export function AdminHeader() {
             className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:bg-muted"
           >
             <ArrowLeft className="h-4 w-4" />
-            返回前台
+            {t("backToFront")}
           </Link>
         </nav>
       )}

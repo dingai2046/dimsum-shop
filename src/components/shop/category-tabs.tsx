@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 interface Category {
@@ -28,6 +29,8 @@ export function CategoryTabs({
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations("menu");
+  const tCommon = useTranslations("common");
 
   // 自动滚动激活的 tab 到可视区域
   useEffect(() => {
@@ -66,7 +69,7 @@ export function CategoryTabs({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                placeholder="搜索菜品..."
+                placeholder={t("searchPlaceholder")}
                 className="ml-2 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
               />
               {searchQuery && (
@@ -79,7 +82,7 @@ export function CategoryTabs({
               onClick={() => { setSearchOpen(false); handleSearch(""); }}
               className="shrink-0 text-xs text-primary font-medium"
             >
-              取消
+              {tCommon("cancel")}
             </button>
           </div>
         ) : (

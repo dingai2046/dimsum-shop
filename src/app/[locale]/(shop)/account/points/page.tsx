@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { ArrowLeft, Star, TrendingUp, TrendingDown, Settings } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
 import { getPointsBalance, getPointsRecords, POINTS_PER_YUAN } from "@/lib/api/points";
 
@@ -12,6 +13,17 @@ export default async function PointsPage() {
   const records = await getPointsRecords(session.user.id);
   const cashValue = (balance / POINTS_PER_YUAN).toFixed(1);
 
+  return <PointsPageContent balance={balance} records={records} cashValue={cashValue} />;
+}
+
+function PointsPageContent({ balance, records, cashValue }: {
+  balance: number;
+  records: Awaited<ReturnType<typeof getPointsRecords>>;
+  cashValue: string;
+}) {
+  const t = useTranslations("points");
+  const tAccount = useTranslations("account");
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <Link
@@ -19,27 +31,27 @@ export default async function PointsPage() {
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        个人中心
+        {tAccount("title")}
       </Link>
 
-      <h1 className="mb-6 text-2xl font-bold">我的积分</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t("title")}</h1>
 
       {/* 积分余额卡片 */}
       <div className="rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 p-6 text-white">
         <div className="flex items-center gap-2">
           <Star className="h-5 w-5" />
-          <span className="text-sm font-medium text-white/80">可用积分</span>
+          <span className="text-sm font-medium text-white/80">{t("available")}</span>
         </div>
         <p className="mt-2 text-4xl font-bold">{balance}</p>
-        <p className="mt-1 text-sm text-white/70">约等于 ¥{cashValue} 抵扣</p>
+        <p className="mt-1 text-sm text-white/70">{t("equivalent", { value: cashValue })}</p>
         <div className="mt-4 rounded-xl bg-white/15 p-3 text-xs text-white/80">
-          每消费 1 元获得 1 积分，{POINTS_PER_YUAN} 积分可抵 1 元
+          {t("rule", { rate: POINTS_PER_YUAN })}
         </div>
       </div>
 
       {/* 积分明细 */}
       <div className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold">积分明细</h2>
+        <h2 className="mb-4 text-lg font-semibold">{t("records")}</h2>
         {records.length > 0 ? (
           <div className="space-y-3">
             {records.map((record) => {
@@ -82,7 +94,7 @@ export default async function PointsPage() {
           </div>
         ) : (
           <div className="py-12 text-center text-muted-foreground">
-            暂无积分记录
+            {t("noRecords")}
           </div>
         )}
       </div>

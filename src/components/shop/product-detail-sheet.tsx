@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import { X, Minus, Plus } from "lucide-react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
 
@@ -27,6 +28,8 @@ interface ProductDetailSheetProps {
 export function ProductDetailSheet({ product, open, onClose }: ProductDetailSheetProps) {
   const { addItem, updateQuantity, getItemQuantity } = useCart();
   const sheetRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("product");
+  const tMenu = useTranslations("menu");
 
   // 拖拽关闭
   useEffect(() => {
@@ -119,7 +122,7 @@ export function ProductDetailSheet({ product, open, onClose }: ProductDetailShee
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent" />
           {hasDiscount && (
             <span className="absolute left-3 top-3 rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground shadow-lg animate-fade-up">
-              省{Math.round((1 - product.price / product.originalPrice!) * 100)}%
+              {t("save", { percent: Math.round((1 - product.price / product.originalPrice!) * 100) })}
             </span>
           )}
         </div>
@@ -145,7 +148,7 @@ export function ProductDetailSheet({ product, open, onClose }: ProductDetailShee
           <div className="mt-2 flex flex-wrap gap-1.5 animate-fade-up" style={{ animationDelay: "50ms" }}>
             {product.soldCount && product.soldCount > 0 && (
               <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                🔥 月售{product.soldCount}
+                🔥 {tMenu("monthlySales", { count: product.soldCount })}
               </span>
             )}
             {product.servingSize && (
@@ -169,9 +172,13 @@ export function ProductDetailSheet({ product, open, onClose }: ProductDetailShee
 
           {/* 服务保障 */}
           <div className="mt-4 flex gap-3 animate-fade-up" style={{ animationDelay: "150ms" }}>
-            {["🧊 冷链配送", "👨‍🍳 手工制作", "✅ 品质保证"].map((item) => (
-              <span key={item} className="rounded-lg bg-muted/60 px-2.5 py-1.5 text-xs text-muted-foreground">
-                {item}
+            {[
+              { icon: "🧊", label: t("coldChain") },
+              { icon: "👨‍🍳", label: t("handmade") },
+              { icon: "✅", label: t("quality") },
+            ].map((item) => (
+              <span key={item.label} className="rounded-lg bg-muted/60 px-2.5 py-1.5 text-xs text-muted-foreground">
+                {item.icon} {item.label}
               </span>
             ))}
           </div>
@@ -193,7 +200,7 @@ export function ProductDetailSheet({ product, open, onClose }: ProductDetailShee
               onClick={handleAdd}
               className="flex-1 rounded-full bg-primary py-3.5 text-center font-bold text-primary-foreground shadow-lg transition-all duration-200 hover:shadow-xl active:scale-[0.97]"
             >
-              加入购物车 {formatPrice(product.price * (quantity > 0 ? 1 : 1))}
+              {tMenu("addToCart")} {formatPrice(product.price * (quantity > 0 ? 1 : 1))}
             </button>
           </div>
         </div>

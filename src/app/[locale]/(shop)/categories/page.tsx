@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { getCategories } from "@/lib/api/categories";
 import { getProducts } from "@/lib/api/products";
 
@@ -28,12 +29,27 @@ export default async function CategoriesPage() {
     categoryCounts[p.category.slug] = (categoryCounts[p.category.slug] || 0) + 1;
   }
 
+  return <CategoriesContent categories={categories} products={products} categoryCounts={categoryCounts} />;
+}
+
+function CategoriesContent({
+  categories,
+  products,
+  categoryCounts,
+}: {
+  categories: Awaited<ReturnType<typeof getCategories>>;
+  products: unknown[];
+  categoryCounts: Record<string, number>;
+}) {
+  const t = useTranslations("categories");
+  const tProduct = useTranslations("product");
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold md:text-3xl">分类浏览</h1>
+        <h1 className="text-2xl font-bold md:text-3xl">{t("title")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {categories.length} 个分类，{products.length} 款产品
+          {t("categoriesCount", { count: categories.length, products: products.length })}
         </p>
       </div>
 
@@ -53,7 +69,7 @@ export default async function CategoriesPage() {
                   {cat.description}
                 </p>
                 <p className="mt-3 text-xs font-medium text-primary">
-                  {categoryCounts[cat.slug] || 0} 款产品
+                  {tProduct("productsCount", { count: categoryCounts[cat.slug] || 0 })}
                 </p>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />

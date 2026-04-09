@@ -13,7 +13,13 @@
     "back": "Back",
     "more": "More",
     "free": "Free",
-    "noData": "No data"
+    "noData": "No data",
+    "networkError": "Network error",
+    "operationFailed": "Operation failed",
+    "deleteFailed": "Delete failed",
+    "user": "User",
+    "total": "Total",
+    "saving": "Saving..."
   },
   "nav": {
     "menu": "Menu",
@@ -50,6 +56,9 @@
     "coldChain": "Cold chain",
     "handmade": "Handmade",
     "quality": "Quality guaranteed",
+    "freshKeeping": "Fresh keeping",
+    "traditional": "Traditional craft",
+    "refund": "Easy refund",
     "relatedProducts": "You may also like",
     "allProducts": "All Dim Sum",
     "sort": "Sort",
@@ -59,21 +68,28 @@
     "sortNewest": "Newest",
     "productsCount": "{count} products",
     "noCategoryProducts": "No products in this category",
-    "viewAll": "View all products"
+    "viewAll": "View all products",
+    "allFilter": "All"
   },
   "cart": {
     "title": "Cart",
     "empty": "Your cart is empty",
     "emptyHint": "Go pick some dishes ~",
     "itemCount": "{count} items",
+    "items": "{count} items",
     "clear": "Clear",
+    "clearCart": "Clear cart",
     "subtotal": "Subtotal",
+    "itemsTotal": "Items total",
     "deliveryFee": "Delivery fee",
     "selfPickup": "Pickup",
     "total": "Total",
     "checkout": "Checkout",
     "noItems": "No items selected",
-    "freeDeliveryNote": "Pickup · Free delivery"
+    "freeDeliveryNote": "Pickup · Free delivery",
+    "shipping": "Shipping",
+    "freeShipping": "Free shipping",
+    "goShopping": "Browse Menu"
   },
   "checkout": {
     "title": "Confirm Order",
@@ -158,10 +174,12 @@
     "orderInfo": "Items",
     "deliveryInfo": "Delivery Info",
     "orderSuccess": "Order Placed!",
-    "successHint": "We've received your order",
+    "successHint": "Thank you for your order. We'll arrange delivery soon.",
     "continueShopping": "Continue Shopping",
     "viewOrder": "View Order",
-    "reorder": "Reorder"
+    "reorder": "Reorder",
+    "orderNo": "Order No.",
+    "backToHome": "Back to Home"
   },
   "orderStatus": {
     "PENDING": "Pending",
@@ -209,7 +227,12 @@
     "address": "Address",
     "phone": "Phone",
     "emailLabel": "Email",
-    "hoursLabel": "Hours"
+    "hoursLabel": "Hours",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "scanWeChat": "Scan to add on WeChat",
+    "socialMedia": "Social Media",
+    "takeawayWholesale": "Takeaway · Wholesale & Retail"
   },
   "about": {
     "title": "About Us",
@@ -219,10 +242,17 @@
   },
   "search": {
     "title": "Search",
-    "placeholder": "Search dim sum...",
+    "placeholder": "Search dim sum, dumplings, wontons...",
     "results": "Search Results",
     "noResults": "No products found",
-    "searchBtn": "Search"
+    "searchBtn": "Search",
+    "resultsCount": "Found {count} results for \"{query}\"",
+    "inputHint": "Enter keywords to search",
+    "browseAll": "Browse all products"
+  },
+  "categories": {
+    "title": "Browse Categories",
+    "categoriesCount": "{count} categories, {products} products"
   },
   "admin": {
     "dashboard": "Dashboard",
@@ -246,9 +276,34 @@
     "categoryIcon": "Icon (emoji)",
     "categoryDesc": "Description",
     "sortOrder": "Sort Order",
+    "sortOrderHint": "Lower number = higher priority",
     "productCount": "Products",
     "deleteCategory": "Delete category \"{name}\"?",
     "createCategory": "Create Category",
-    "saveChanges": "Save Changes"
+    "saveChanges": "Save Changes",
+    "backToFront": "Back to Site",
+    "adminPanel": "Admin",
+    "overview": "Overview",
+    "detail": "Detail",
+    "noOrders": "No orders found",
+    "orderNo": "Order No.",
+    "orderTime": "Order Time",
+    "customer": "Customer",
+    "orderAmount": "Amount",
+    "recipient": "Recipient",
+    "phoneNumber": "Phone",
+    "addressLabel": "Address",
+    "orderItems": "Order Items",
+    "sold": "{count} sold",
+    "ordersCount": "{count} orders",
+    "backToOrders": "Back to Orders",
+    "orderDetail": "Order Detail",
+    "orderInfo": "Order Info",
+    "deliveryInfo": "Delivery Info",
+    "operation": "Action",
+    "amount": "Amount",
+    "status": "Status",
+    "time": "Time",
+    "updateFailed": "Update failed"
   }
 }

@@ -13,7 +13,13 @@
     "back": "返回",
     "more": "更多",
     "free": "免费",
-    "noData": "暂无数据"
+    "noData": "暂无数据",
+    "networkError": "网络错误",
+    "operationFailed": "操作失败",
+    "deleteFailed": "删除失败",
+    "user": "用户",
+    "total": "合计",
+    "saving": "保存中..."
   },
   "nav": {
     "menu": "菜单",
@@ -50,6 +56,9 @@
     "coldChain": "冷链配送",
     "handmade": "手工制作",
     "quality": "品质保证",
+    "freshKeeping": "全程保鲜",
+    "traditional": "传统工艺",
+    "refund": "无忧退款",
     "relatedProducts": "你可能还喜欢",
     "allProducts": "全部点心",
     "sort": "排序",
@@ -59,21 +68,28 @@
     "sortNewest": "最新上架",
     "productsCount": "{count} 款产品",
     "noCategoryProducts": "该分类暂无产品",
-    "viewAll": "查看全部产品"
+    "viewAll": "查看全部产品",
+    "allFilter": "全部"
   },
   "cart": {
     "title": "购物车",
-    "empty": "购物车空空如也",
-    "emptyHint": "快去选几道菜吧 ~",
+    "empty": "购物车是空的",
+    "emptyHint": "去挑选几款心仪的点心吧",
     "itemCount": "{count}件",
+    "items": "{count} 件",
     "clear": "清空",
+    "clearCart": "清空购物车",
     "subtotal": "商品小计",
+    "itemsTotal": "商品合计",
     "deliveryFee": "配送费",
     "selfPickup": "自取",
     "total": "合计",
     "checkout": "去结算",
     "noItems": "还没有选购菜品",
-    "freeDeliveryNote": "门店自取 · 免配送费"
+    "freeDeliveryNote": "门店自取 · 免配送费",
+    "shipping": "运费",
+    "freeShipping": "免运费",
+    "goShopping": "去选购"
   },
   "checkout": {
     "title": "确认订单",
@@ -157,11 +173,13 @@
     "orderDetail": "订单详情",
     "orderInfo": "商品信息",
     "deliveryInfo": "收货信息",
-    "orderSuccess": "下单成功",
-    "successHint": "我们已收到你的订单",
-    "continueShopping": "继续选购",
+    "orderSuccess": "下单成功！",
+    "successHint": "感谢你的订购，我们将尽快为你安排发货",
+    "continueShopping": "继续购物",
     "viewOrder": "查看订单",
-    "reorder": "再来一单"
+    "reorder": "再来一单",
+    "orderNo": "订单编号",
+    "backToHome": "返回首页"
   },
   "orderStatus": {
     "PENDING": "待支付",
@@ -189,7 +207,7 @@
     "edit": "编辑地址",
     "default": "默认",
     "setDefault": "设为默认地址",
-    "noAddress": "还没有添加收货地址",
+    "noAddress": "还没有添加地址",
     "deleteConfirm": "确定删除这个地址吗？"
   },
   "points": {
@@ -209,7 +227,12 @@
     "address": "地址",
     "phone": "电话",
     "emailLabel": "邮箱",
-    "hoursLabel": "营业时间"
+    "hoursLabel": "营业时间",
+    "privacyPolicy": "隐私政策",
+    "termsOfService": "服务条款",
+    "scanWeChat": "微信扫码添加",
+    "socialMedia": "社交平台",
+    "takeawayWholesale": "Takeaway · 批發零售"
   },
   "about": {
     "title": "关于我们",
@@ -219,10 +242,17 @@
   },
   "search": {
     "title": "搜索",
-    "placeholder": "搜索点心...",
+    "placeholder": "搜索点心、水饺、云吞...",
     "results": "搜索结果",
     "noResults": "没有找到相关产品",
-    "searchBtn": "搜索"
+    "searchBtn": "搜索",
+    "resultsCount": "搜索 \"{query}\" 找到 {count} 个结果",
+    "inputHint": "输入关键词搜索点心",
+    "browseAll": "浏览全部产品"
+  },
+  "categories": {
+    "title": "分类浏览",
+    "categoriesCount": "{count} 个分类，{products} 款产品"
   },
   "admin": {
     "dashboard": "管理概览",
@@ -246,9 +276,34 @@
     "categoryIcon": "图标（emoji）",
     "categoryDesc": "描述",
     "sortOrder": "排序",
+    "sortOrderHint": "数字越小越靠前",
     "productCount": "产品数",
     "deleteCategory": "确定删除分类「{name}」吗？",
     "createCategory": "创建分类",
-    "saveChanges": "保存修改"
+    "saveChanges": "保存修改",
+    "backToFront": "返回前台",
+    "adminPanel": "管理后台",
+    "overview": "概览",
+    "detail": "详情",
+    "noOrders": "没有找到订单",
+    "orderNo": "订单号",
+    "orderTime": "下单时间",
+    "customer": "客户",
+    "orderAmount": "订单金额",
+    "recipient": "收件人",
+    "phoneNumber": "手机号",
+    "addressLabel": "地址",
+    "orderItems": "订单商品",
+    "sold": "售出 {count} 份",
+    "ordersCount": "{count} 个订单",
+    "backToOrders": "返回订单列表",
+    "orderDetail": "订单详情",
+    "orderInfo": "订单信息",
+    "deliveryInfo": "收货信息",
+    "operation": "操作",
+    "amount": "金额",
+    "status": "状态",
+    "time": "时间",
+    "updateFailed": "更新失败"
   }
 }

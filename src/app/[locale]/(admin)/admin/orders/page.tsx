@@ -1,19 +1,8 @@
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { getOrders, getStatusInfo } from "@/lib/api/orders";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
-
-const statusFilters = [
-  { value: "all", label: "全部" },
-  { value: "PENDING", label: "待支付" },
-  { value: "PAID", label: "已支付" },
-  { value: "CONFIRMED", label: "已确认" },
-  { value: "PREPARING", label: "制作中" },
-  { value: "READY", label: "待配送" },
-  { value: "DELIVERING", label: "配送中" },
-  { value: "DELIVERED", label: "已送达" },
-  { value: "CANCELLED", label: "已取消" },
-];
 
 interface OrdersPageProps {
   searchParams: Promise<{ status?: string }>;
@@ -28,11 +17,34 @@ export default async function AdminOrdersPage({ searchParams }: OrdersPageProps)
     orders = orders.filter((o) => o.status === currentFilter);
   }
 
+  return <AdminOrdersContent orders={orders} currentFilter={currentFilter} />;
+}
+
+function AdminOrdersContent({ orders, currentFilter }: {
+  orders: Awaited<ReturnType<typeof getOrders>>;
+  currentFilter: string;
+}) {
+  const t = useTranslations("admin");
+  const tOrders = useTranslations("orders");
+  const tStatus = useTranslations("orderStatus");
+
+  const statusFilters = [
+    { value: "all", label: tOrders("all") },
+    { value: "PENDING", label: tStatus("PENDING") },
+    { value: "PAID", label: tStatus("PAID") },
+    { value: "CONFIRMED", label: tStatus("CONFIRMED") },
+    { value: "PREPARING", label: tStatus("PREPARING") },
+    { value: "READY", label: tStatus("READY") },
+    { value: "DELIVERING", label: tStatus("DELIVERING") },
+    { value: "DELIVERED", label: tStatus("DELIVERED") },
+    { value: "CANCELLED", label: tStatus("CANCELLED") },
+  ];
+
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">订单管理</h1>
-        <p className="text-sm text-muted-foreground">{orders.length} 个订单</p>
+        <h1 className="text-2xl font-bold">{t("orders")}</h1>
+        <p className="text-sm text-muted-foreground">{t("ordersCount", { count: orders.length })}</p>
       </div>
 
       {/* 状态筛选 */}
@@ -57,12 +69,12 @@ export default async function AdminOrdersPage({ searchParams }: OrdersPageProps)
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50">
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">订单号</th>
-              <th className="hidden px-4 py-3 text-left font-medium text-muted-foreground md:table-cell">客户</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">金额</th>
-              <th className="px-4 py-3 text-left font-medium text-muted-foreground">状态</th>
-              <th className="hidden px-4 py-3 text-left font-medium text-muted-foreground md:table-cell">时间</th>
-              <th className="px-4 py-3 text-right font-medium text-muted-foreground">操作</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("orderNo")}</th>
+              <th className="hidden px-4 py-3 text-left font-medium text-muted-foreground md:table-cell">{t("customer")}</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("amount")}</th>
+              <th className="px-4 py-3 text-left font-medium text-muted-foreground">{t("status")}</th>
+              <th className="hidden px-4 py-3 text-left font-medium text-muted-foreground md:table-cell">{t("time")}</th>
+              <th className="px-4 py-3 text-right font-medium text-muted-foreground">{t("operation")}</th>
             </tr>
           </thead>
           <tbody>
@@ -93,7 +105,7 @@ export default async function AdminOrdersPage({ searchParams }: OrdersPageProps)
                         href={`/admin/orders/${order.id}`}
                         className="text-sm font-medium text-primary hover:text-primary/80"
                       >
-                        详情
+                        {t("detail")}
                       </Link>
                     </td>
                   </tr>
@@ -102,7 +114,7 @@ export default async function AdminOrdersPage({ searchParams }: OrdersPageProps)
             ) : (
               <tr>
                 <td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">
-                  没有找到订单
+                  {t("noOrders")}
                 </td>
               </tr>
             )}

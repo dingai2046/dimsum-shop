@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { getProducts, type SortOption } from "@/lib/api/products";
 import { getCategories } from "@/lib/api/categories";
 import { ProductCard } from "@/components/shop/product-card";
@@ -14,13 +15,6 @@ interface ProductsPageProps {
   searchParams: Promise<{ category?: string; sort?: string }>;
 }
 
-const sortOptions: { value: SortOption; label: string }[] = [
-  { value: "default", label: "默认排序" },
-  { value: "price-asc", label: "价格从低到高" },
-  { value: "price-desc", label: "价格从高到低" },
-  { value: "newest", label: "最新上架" },
-];
-
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
   const currentCategory = params.category || "";
@@ -34,13 +28,41 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     }),
   ]);
 
+  return <ProductsContent
+    categories={categories}
+    products={products}
+    currentCategory={currentCategory}
+    currentSort={currentSort}
+  />;
+}
+
+function ProductsContent({
+  categories,
+  products,
+  currentCategory,
+  currentSort,
+}: {
+  categories: Awaited<ReturnType<typeof getCategories>>;
+  products: Awaited<ReturnType<typeof getProducts>>;
+  currentCategory: string;
+  currentSort: SortOption;
+}) {
+  const t = useTranslations("product");
+
+  const sortOptions: { value: SortOption; label: string }[] = [
+    { value: "default", label: t("sortDefault") },
+    { value: "price-asc", label: t("sortPriceAsc") },
+    { value: "price-desc", label: t("sortPriceDesc") },
+    { value: "newest", label: t("sortNewest") },
+  ];
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
       {/* 页面标题 */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold md:text-3xl">全部点心</h1>
+        <h1 className="text-2xl font-bold md:text-3xl">{t("allProducts")}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {products.length} 款产品
+          {t("productsCount", { count: products.length })}
         </p>
       </div>
 
@@ -55,7 +77,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               : "bg-muted text-muted-foreground hover:text-foreground"
           )}
         >
-          全部
+          {t("allFilter")}
         </Link>
         {categories.map((cat) => (
           <Link
@@ -75,7 +97,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
       {/* 排序 */}
       <div className="mb-6 flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">排序：</span>
+        <span className="text-sm text-muted-foreground">{t("sort")}:</span>
         <div className="flex gap-1.5">
           {sortOptions.map((opt) => (
             <Link
@@ -112,12 +134,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         </div>
       ) : (
         <div className="py-20 text-center">
-          <p className="text-lg text-muted-foreground">该分类暂无产品</p>
+          <p className="text-lg text-muted-foreground">{t("noCategoryProducts")}</p>
           <Link
             href="/products"
             className="mt-4 inline-block text-sm font-medium text-primary hover:text-primary/80"
           >
-            查看全部产品
+            {t("viewAll")}
           </Link>
         </div>
       )}

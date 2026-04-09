@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MapPin, Plus, Check, Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -32,6 +33,9 @@ export function AddressManager({ initialAddresses }: AddressManagerProps) {
   const [editing, setEditing] = useState<Address | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const t = useTranslations("address");
+  const tCheckout = useTranslations("checkout");
+  const tCommon = useTranslations("common");
 
   const [form, setForm] = useState({
     name: "", phone: "", street1: "", street2: "",
@@ -78,24 +82,24 @@ export function AddressManager({ initialAddresses }: AddressManagerProps) {
         }
       } else {
         const data = await res.json();
-        setError(data.error || "操作失败");
+        setError(data.error || tCommon("operationFailed"));
       }
     } catch {
-      setError("网络错误");
+      setError(tCommon("networkError"));
     } finally {
       setLoading(false);
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("确定删除这个地址吗？")) return;
+    if (!confirm(t("deleteConfirm"))) return;
     try {
       const res = await fetch(`/api/addresses/${id}`, { method: "DELETE" });
       if (res.ok) {
         setAddresses((prev) => prev.filter((a) => a.id !== id));
       }
     } catch {
-      alert("删除失败");
+      alert(tCommon("deleteFailed"));
     }
   }
 
@@ -104,7 +108,7 @@ export function AddressManager({ initialAddresses }: AddressManagerProps) {
       <div className="mb-4 flex justify-end">
         <Button onClick={openNew} className="gap-1.5">
           <Plus className="h-4 w-4" />
-          添加地址
+          {t("add")}
         </Button>
       </div>
 
@@ -115,7 +119,7 @@ export function AddressManager({ initialAddresses }: AddressManagerProps) {
               {addr.isDefault && (
                 <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                   <Check className="h-3 w-3" />
-                  默认
+                  {t("default")}
                 </span>
               )}
               <div className="flex items-start gap-3">
@@ -148,7 +152,7 @@ export function AddressManager({ initialAddresses }: AddressManagerProps) {
       ) : (
         <div className="py-16 text-center">
           <MapPin className="mx-auto mb-4 h-12 w-12 text-muted-foreground/40" />
-          <p className="text-muted-foreground">还没有添加地址</p>
+          <p className="text-muted-foreground">{t("noAddress")}</p>
         </div>
       )}
 
@@ -156,50 +160,50 @@ export function AddressManager({ initialAddresses }: AddressManagerProps) {
       <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setError(""); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editing ? "编辑地址" : "添加地址"}</DialogTitle>
+            <DialogTitle>{editing ? t("edit") : t("add")}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSave} className="space-y-3 mt-2">
             {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">姓名 *</label>
+                <label className="mb-1 block text-xs text-muted-foreground">{tCheckout("name")} *</label>
                 <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="h-10 rounded-lg" />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">电话 *</label>
+                <label className="mb-1 block text-xs text-muted-foreground">{tCheckout("phone")} *</label>
                 <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required className="h-10 rounded-lg" />
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-xs text-muted-foreground">街道地址 *</label>
+              <label className="mb-1 block text-xs text-muted-foreground">{tCheckout("street")} *</label>
               <Input value={form.street1} onChange={(e) => setForm({ ...form, street1: e.target.value })} required placeholder="123 Smith Street" className="h-10 rounded-lg" />
             </div>
             <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Unit/Apt (可选)</label>
+              <label className="mb-1 block text-xs text-muted-foreground">{tCheckout("unit")}</label>
               <Input value={form.street2} onChange={(e) => setForm({ ...form, street2: e.target.value })} placeholder="Unit 5" className="h-10 rounded-lg" />
             </div>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">Suburb *</label>
+                <label className="mb-1 block text-xs text-muted-foreground">{tCheckout("suburb")} *</label>
                 <Input value={form.suburb} onChange={(e) => setForm({ ...form, suburb: e.target.value })} required className="h-10 rounded-lg" />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">State *</label>
+                <label className="mb-1 block text-xs text-muted-foreground">{tCheckout("state")} *</label>
                 <select value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm">
                   {AU_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">Postcode *</label>
+                <label className="mb-1 block text-xs text-muted-foreground">{tCheckout("postcode")} *</label>
                 <Input value={form.postcode} onChange={(e) => setForm({ ...form, postcode: e.target.value })} required maxLength={4} className="h-10 rounded-lg" />
               </div>
             </div>
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={form.isDefault} onChange={(e) => setForm({ ...form, isDefault: e.target.checked })} className="rounded" />
-              设为默认地址
+              {t("setDefault")}
             </label>
             <Button type="submit" disabled={loading} className="w-full h-11">
-              {loading ? "保存中..." : editing ? "保存修改" : "添加地址"}
+              {loading ? tCommon("saving") : editing ? tCommon("save") : t("add")}
             </Button>
           </form>
         </DialogContent>

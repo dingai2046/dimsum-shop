@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { getProductBySlug, getRelatedProducts } from "@/lib/api/products";
 import { formatPrice } from "@/lib/utils/format";
 import { ProductCard } from "@/components/shop/product-card";
@@ -38,6 +38,19 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (!product) notFound();
 
   const relatedProducts = await getRelatedProducts(slug, 4);
+
+  return <ProductContent product={product} relatedProducts={relatedProducts} />;
+}
+
+function ProductContent({
+  product,
+  relatedProducts,
+}: {
+  product: NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
+  relatedProducts: Awaited<ReturnType<typeof getRelatedProducts>>;
+}) {
+  const t = useTranslations("product");
+
   const hasDiscount =
     product.originalPrice !== null && product.originalPrice > product.price;
   const discountPercent = hasDiscount
@@ -68,7 +81,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       {/* 面包屑导航 */}
       <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
         <Link href="/products" className="hover:text-foreground transition-colors">
-          全部点心
+          {t("allProducts")}
         </Link>
         <span>/</span>
         <Link
@@ -95,7 +108,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           />
           {hasDiscount && (
             <span className="absolute left-4 top-4 rounded-full bg-primary px-3 py-1 text-sm font-semibold text-primary-foreground shadow">
-              省 {discountPercent}%
+              {t("save", { percent: discountPercent })}
             </span>
           )}
         </div>
@@ -144,16 +157,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* 服务保障 */}
           <div className="mt-8 grid grid-cols-3 gap-3 text-center">
             <div className="rounded-xl bg-muted/50 p-3">
-              <p className="text-sm font-medium">冷链配送</p>
-              <p className="text-[11px] text-muted-foreground">全程保鲜</p>
+              <p className="text-sm font-medium">{t("coldChain")}</p>
+              <p className="text-[11px] text-muted-foreground">{t("freshKeeping")}</p>
             </div>
             <div className="rounded-xl bg-muted/50 p-3">
-              <p className="text-sm font-medium">手工制作</p>
-              <p className="text-[11px] text-muted-foreground">传统工艺</p>
+              <p className="text-sm font-medium">{t("handmade")}</p>
+              <p className="text-[11px] text-muted-foreground">{t("traditional")}</p>
             </div>
             <div className="rounded-xl bg-muted/50 p-3">
-              <p className="text-sm font-medium">无忧退款</p>
-              <p className="text-[11px] text-muted-foreground">品质保证</p>
+              <p className="text-sm font-medium">{t("refund")}</p>
+              <p className="text-[11px] text-muted-foreground">{t("quality")}</p>
             </div>
           </div>
         </div>
@@ -162,7 +175,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       {/* 相关推荐 */}
       {relatedProducts.length > 0 && (
         <section className="mt-16">
-          <h2 className="mb-6 text-xl font-bold">你可能还喜欢</h2>
+          <h2 className="mb-6 text-xl font-bold">{t("relatedProducts")}</h2>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
             {relatedProducts.map((p) => (
               <ProductCard

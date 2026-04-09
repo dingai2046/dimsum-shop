@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { CategoryTabs } from "./category-tabs";
 import { MenuProductCard } from "./menu-product-card";
 
@@ -37,6 +38,7 @@ export function MenuSection({ categories, onProductClick }: MenuSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const isScrollingTo = useRef(false);
+  const t = useTranslations("menu");
 
   // IntersectionObserver 自动高亮
   useEffect(() => {
@@ -141,7 +143,7 @@ export function MenuSection({ categories, onProductClick }: MenuSectionProps) {
 
         {filteredCategories.length === 0 && searchQuery && (
           <div className="py-20 text-center">
-            <p className="text-muted-foreground">没有找到"{searchQuery}"相关菜品</p>
+            <p className="text-muted-foreground">{t("noSearchResults", { query: searchQuery })}</p>
           </div>
         )}
       </div>

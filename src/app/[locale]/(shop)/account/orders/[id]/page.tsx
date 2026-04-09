@@ -1,20 +1,11 @@
 import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Check, Circle } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
 import { getOrderById, getStatusInfo } from "@/lib/api/orders";
 import { formatPrice } from "@/lib/utils/format";
-
-const statusTimeline = [
-  { status: "PENDING", label: "下单" },
-  { status: "PAID", label: "支付" },
-  { status: "CONFIRMED", label: "确认" },
-  { status: "PREPARING", label: "制作" },
-  { status: "READY", label: "出餐" },
-  { status: "DELIVERING", label: "配送" },
-  { status: "DELIVERED", label: "送达" },
-];
 
 const statusOrder: Record<string, number> = {
   PENDING: 0,
@@ -38,6 +29,24 @@ export default async function OrderDetailPage({ params }: OrderDetailProps) {
   const order = await getOrderById(id);
   if (!order || order.userId !== session.user.id) notFound();
 
+  return <OrderDetailContent order={order} />;
+}
+
+function OrderDetailContent({ order }: { order: NonNullable<Awaited<ReturnType<typeof getOrderById>>> }) {
+  const t = useTranslations("orders");
+  const tTimeline = useTranslations("statusTimeline");
+  const tCart = useTranslations("cart");
+
+  const statusTimeline = [
+    { status: "PENDING", label: tTimeline("PENDING") },
+    { status: "PAID", label: tTimeline("PAID") },
+    { status: "CONFIRMED", label: tTimeline("CONFIRMED") },
+    { status: "PREPARING", label: tTimeline("PREPARING") },
+    { status: "READY", label: tTimeline("READY") },
+    { status: "DELIVERING", label: tTimeline("DELIVERING") },
+    { status: "DELIVERED", label: tTimeline("DELIVERED") },
+  ];
+
   const statusInfo = getStatusInfo(order.status);
   const currentStep = statusOrder[order.status] ?? -1;
   const isCancelled = order.status === "CANCELLED" || order.status === "REFUNDED";
@@ -50,7 +59,7 @@ export default async function OrderDetailPage({ params }: OrderDetailProps) {
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        我的订单
+        {t("title")}
       </Link>
 
       {/* 状态头部 */}
@@ -108,17 +117,17 @@ export default async function OrderDetailPage({ params }: OrderDetailProps) {
 
       {/* 商品列表 */}
       <div className="mb-4 rounded-2xl bg-card p-5 shadow-sm">
-        <h2 className="mb-3 font-semibold">商品信息</h2>
+        <h2 className="mb-3 font-semibold">{t("orderInfo")}</h2>
         <div className="space-y-3">
           {order.items.map((item) => {
             const snapshot = item.productSnapshot as { name?: string; image?: string };
             return (
               <div key={item.id} className="flex items-center gap-3">
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  <Image src={snapshot.image || "/images/products/xiajiao.jpg"} alt={snapshot.name || "产品"} fill className="object-cover" sizes="56px" />
+                  <Image src={snapshot.image || "/images/products/xiajiao.jpg"} alt={snapshot.name || ""} fill className="object-cover" sizes="56px" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">{snapshot.name || "产品"}</p>
+                  <p className="text-sm font-medium">{snapshot.name || ""}</p>
                   <p className="text-xs text-muted-foreground">{formatPrice(item.price)} x {item.quantity}</p>
                 </div>
                 <span className="text-sm font-semibold">{formatPrice(item.price * item.quantity)}</span>
@@ -126,7 +135,7 @@ export default async function OrderDetailPage({ params }: OrderDetailProps) {
             );
           })}
           <div className="border-t border-border pt-3 text-right">
-            <span className="text-sm text-muted-foreground">合计：</span>
+            <span className="text-sm text-muted-foreground">{tCart("total")}:</span>
             <span className="ml-2 text-lg font-bold text-primary">{formatPrice(order.totalAmount)}</span>
           </div>
         </div>
@@ -134,7 +143,7 @@ export default async function OrderDetailPage({ params }: OrderDetailProps) {
 
       {/* 收货信息 */}
       <div className="rounded-2xl bg-card p-5 shadow-sm">
-        <h2 className="mb-3 font-semibold">收货信息</h2>
+        <h2 className="mb-3 font-semibold">{t("deliveryInfo")}</h2>
         <div className="space-y-1.5 text-sm text-muted-foreground">
           <p><span className="text-foreground font-medium">{addr.name}</span> {addr.phone}</p>
           <p>

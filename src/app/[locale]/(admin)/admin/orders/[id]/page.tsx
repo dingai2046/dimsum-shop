@@ -1,7 +1,8 @@
-import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { getOrderById, getStatusInfo } from "@/lib/api/orders";
 import { formatPrice } from "@/lib/utils/format";
 import { OrderStatusUpdate } from "@/components/admin/order-status-update";
@@ -16,6 +17,12 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
   if (!order) notFound();
 
+  return <AdminOrderDetailContent order={order} />;
+}
+
+function AdminOrderDetailContent({ order }: { order: NonNullable<Awaited<ReturnType<typeof getOrderById>>> }) {
+  const t = useTranslations("admin");
+
   const statusInfo = getStatusInfo(order.status);
   const addr = order.addressSnapshot as { name?: string; phone?: string; street1?: string; street2?: string; suburb?: string; state?: string; postcode?: string; province?: string; city?: string; district?: string; detail?: string };
 
@@ -26,11 +33,11 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        返回订单列表
+        {t("backToOrders")}
       </Link>
 
       <div className="mb-6 flex items-center gap-3">
-        <h1 className="text-2xl font-bold">订单详情</h1>
+        <h1 className="text-2xl font-bold">{t("orderDetail")}</h1>
         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusInfo.color}`}>
           {statusInfo.label}
         </span>
@@ -39,22 +46,22 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* 订单信息 */}
         <div className="rounded-xl bg-card p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold">订单信息</h2>
+          <h2 className="text-lg font-semibold">{t("orderInfo")}</h2>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">订单号</span>
+              <span className="text-muted-foreground">{t("orderNo")}</span>
               <span className="font-mono">{order.orderNo}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">下单时间</span>
+              <span className="text-muted-foreground">{t("orderTime")}</span>
               <span>{new Date(order.createdAt).toLocaleString("zh-CN")}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">客户</span>
+              <span className="text-muted-foreground">{t("customer")}</span>
               <span>{order.user.name || order.user.email || "—"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">订单金额</span>
+              <span className="text-muted-foreground">{t("orderAmount")}</span>
               <span className="font-semibold text-primary">{formatPrice(order.totalAmount)}</span>
             </div>
           </div>
@@ -62,18 +69,18 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
         {/* 收货信息 */}
         <div className="rounded-xl bg-card p-6 shadow-sm space-y-4">
-          <h2 className="text-lg font-semibold">收货信息</h2>
+          <h2 className="text-lg font-semibold">{t("deliveryInfo")}</h2>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">收件人</span>
+              <span className="text-muted-foreground">{t("recipient")}</span>
               <span>{addr.name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">手机号</span>
+              <span className="text-muted-foreground">{t("phoneNumber")}</span>
               <span>{addr.phone}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">地址</span>
+              <span className="text-muted-foreground">{t("addressLabel")}</span>
               <span className="text-right max-w-[200px]">
                 {addr.street1}
                 {addr.street2 ? `, ${addr.street2}` : ""}
@@ -89,7 +96,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
       {/* 订单商品 */}
       <div className="mt-6 rounded-xl bg-card p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold">订单商品</h2>
+        <h2 className="mb-4 text-lg font-semibold">{t("orderItems")}</h2>
         <div className="space-y-3">
           {order.items.map((item) => {
             const snapshot = item.productSnapshot as { name?: string; image?: string };
@@ -98,14 +105,14 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                   <Image
                     src={snapshot.image || "/images/products/xiajiao.jpg"}
-                    alt={snapshot.name || "产品"}
+                    alt={snapshot.name || ""}
                     fill
                     className="object-cover"
                     sizes="48px"
                   />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">{snapshot.name || "产品"}</p>
+                  <p className="text-sm font-medium">{snapshot.name || ""}</p>
                   <p className="text-xs text-muted-foreground">
                     {formatPrice(item.price)} x {item.quantity}
                   </p>
@@ -121,7 +128,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
       {/* 状态更新 */}
       <div className="mt-6 rounded-xl bg-card p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold">更新状态</h2>
+        <h2 className="mb-4 text-lg font-semibold">{t("updateStatus")}</h2>
         <OrderStatusUpdate orderId={order.id} currentStatus={order.status} />
       </div>
     </div>

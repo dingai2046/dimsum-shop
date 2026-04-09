@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/button";
 import { useCart } from "@/lib/cart-context";
@@ -11,6 +12,7 @@ import { formatPrice } from "@/lib/utils/format";
 export default function CartPage() {
   const { items, totalItems, totalPrice, updateQuantity, removeItem, clearCart } =
     useCart();
+  const t = useTranslations("cart");
 
   if (items.length === 0) {
     return (
@@ -18,9 +20,9 @@ export default function CartPage() {
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-muted">
           <ShoppingBag className="h-10 w-10 text-muted-foreground" />
         </div>
-        <h1 className="text-xl font-bold">购物车是空的</h1>
+        <h1 className="text-xl font-bold">{t("empty")}</h1>
         <p className="mt-2 text-muted-foreground">
-          去挑选几款心仪的点心吧
+          {t("emptyHint")}
         </p>
         <Link
           href="/products"
@@ -29,7 +31,7 @@ export default function CartPage() {
             className: "mt-6 h-12 rounded-full px-8",
           })}
         >
-          去选购
+          {t("goShopping")}
         </Link>
       </div>
     );
@@ -39,9 +41,9 @@ export default function CartPage() {
     <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold">
-          购物车
+          {t("title")}
           <span className="ml-2 text-base font-normal text-muted-foreground">
-            ({totalItems} 件)
+            ({t("items", { count: totalItems })})
           </span>
         </h1>
         <Button
@@ -49,7 +51,7 @@ export default function CartPage() {
           className="text-sm text-muted-foreground hover:text-destructive"
           onClick={clearCart}
         >
-          清空购物车
+          {t("clearCart")}
         </Button>
       </div>
 
@@ -134,16 +136,16 @@ export default function CartPage() {
       {/* 底部结算栏 */}
       <div className="mt-8 rounded-2xl bg-card p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-muted-foreground">商品合计</span>
+          <span className="text-muted-foreground">{t("itemsTotal")}</span>
           <span className="text-sm">{formatPrice(totalPrice)}</span>
         </div>
         <div className="flex items-center justify-between mb-4">
-          <span className="text-muted-foreground">运费</span>
-          <span className="text-sm text-green-600">免运费</span>
+          <span className="text-muted-foreground">{t("shipping")}</span>
+          <span className="text-sm text-green-600">{t("freeShipping")}</span>
         </div>
         <div className="border-t border-border pt-4">
           <div className="flex items-center justify-between">
-            <span className="text-lg font-bold">合计</span>
+            <span className="text-lg font-bold">{t("total")}</span>
             <span className="text-2xl font-bold text-primary">
               {formatPrice(totalPrice)}
             </span>
@@ -151,7 +153,7 @@ export default function CartPage() {
         </div>
         <Link href="/checkout">
           <Button className="mt-6 h-12 w-full rounded-full text-base font-semibold shadow-lg shadow-primary/20">
-            去结算
+            {t("checkout")}
           </Button>
         </Link>
       </div>

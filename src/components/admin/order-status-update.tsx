@@ -2,19 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-
-const statusFlow = [
-  { value: "PENDING", label: "待支付" },
-  { value: "PAID", label: "已支付" },
-  { value: "CONFIRMED", label: "商家已确认" },
-  { value: "PREPARING", label: "制作中" },
-  { value: "READY", label: "待取餐/待配送" },
-  { value: "DELIVERING", label: "配送中" },
-  { value: "DELIVERED", label: "已送达" },
-  { value: "CANCELLED", label: "已取消" },
-  { value: "REFUNDED", label: "已退款" },
-];
 
 interface OrderStatusUpdateProps {
   orderId: string;
@@ -26,6 +15,21 @@ export function OrderStatusUpdate({ orderId, currentStatus }: OrderStatusUpdateP
   const [status, setStatus] = useState(currentStatus);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const t = useTranslations("admin");
+  const tStatus = useTranslations("orderStatus");
+  const tCommon = useTranslations("common");
+
+  const statusFlow = [
+    { value: "PENDING", label: tStatus("PENDING") },
+    { value: "PAID", label: tStatus("PAID") },
+    { value: "CONFIRMED", label: tStatus("CONFIRMED") },
+    { value: "PREPARING", label: tStatus("PREPARING") },
+    { value: "READY", label: tStatus("READY") },
+    { value: "DELIVERING", label: tStatus("DELIVERING") },
+    { value: "DELIVERED", label: tStatus("DELIVERED") },
+    { value: "CANCELLED", label: tStatus("CANCELLED") },
+    { value: "REFUNDED", label: tStatus("REFUNDED") },
+  ];
 
   async function handleUpdate() {
     setLoading(true);
@@ -38,14 +42,14 @@ export function OrderStatusUpdate({ orderId, currentStatus }: OrderStatusUpdateP
       });
 
       if (res.ok) {
-        setMessage("状态已更新");
+        setMessage(t("statusUpdated"));
         router.refresh();
       } else {
         const data = await res.json();
-        setMessage(data.error || "更新失败");
+        setMessage(data.error || t("updateFailed"));
       }
     } catch {
-      setMessage("网络错误");
+      setMessage(tCommon("networkError"));
     } finally {
       setLoading(false);
     }
@@ -70,11 +74,11 @@ export function OrderStatusUpdate({ orderId, currentStatus }: OrderStatusUpdateP
           disabled={loading || status === currentStatus}
           className="h-11 px-6"
         >
-          {loading ? "更新中..." : "更新状态"}
+          {loading ? t("updating") : t("updateStatus")}
         </Button>
       </div>
       {message && (
-        <p className={`text-sm ${message === "状态已更新" ? "text-green-600" : "text-destructive"}`}>
+        <p className={`text-sm ${message === t("statusUpdated") ? "text-green-600" : "text-destructive"}`}>
           {message}
         </p>
       )}
