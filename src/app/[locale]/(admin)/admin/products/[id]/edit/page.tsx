@@ -5,6 +5,7 @@ import { getCategories } from "@/lib/api/categories";
 import { getProductBySlug } from "@/lib/api/products";
 import { prisma } from "@/lib/prisma";
 import { ProductForm } from "@/components/admin/product-form";
+import { DeleteProductButton } from "@/components/admin/delete-product-button";
 
 interface EditProductPageProps {
   params: Promise<{ id: string }>;
@@ -22,14 +23,19 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
 
   return (
     <div>
-      <Link
-        href="/admin/products"
-        className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        返回产品列表
-      </Link>
-      <h1 className="mb-6 text-2xl font-bold">编辑产品：{product.name}</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <Link
+            href="/admin/products"
+            className="mb-2 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            返回产品列表
+          </Link>
+          <h1 className="text-2xl font-bold">编辑产品：{product.name}</h1>
+        </div>
+        <DeleteProductButton productId={product.id} productName={product.name} />
+      </div>
       <ProductForm product={product} categories={categories} />
     </div>
   );

@@ -41,6 +41,15 @@ function AdminOrderDetailContent({ order }: { order: NonNullable<Awaited<ReturnT
         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusInfo.color}`}>
           {statusInfo.label}
         </span>
+        {order.deliveryType && (
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            order.deliveryType === "PICKUP"
+              ? "bg-purple-50 text-purple-600"
+              : "bg-blue-50 text-blue-600"
+          }`}>
+            {order.deliveryType === "PICKUP" ? t("deliveryTypePickup") : t("deliveryTypeDelivery")}
+          </span>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -60,8 +69,33 @@ function AdminOrderDetailContent({ order }: { order: NonNullable<Awaited<ReturnT
               <span className="text-muted-foreground">{t("customer")}</span>
               <span>{order.user.name || order.user.email || "—"}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t("orderAmount")}</span>
+            {order.estimatedTime && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t("estimatedTime")}</span>
+                <span>{new Date(order.estimatedTime).toLocaleString("zh-CN")}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 费用明细 */}
+        <div className="rounded-xl bg-card p-6 shadow-sm space-y-4">
+          <h2 className="text-lg font-semibold">{t("priceBreakdown")}</h2>
+          <div className="space-y-2 text-sm">
+            {order.subtotal != null && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t("subtotal")}</span>
+                <span>{formatPrice(order.subtotal)}</span>
+              </div>
+            )}
+            {order.deliveryFee != null && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t("deliveryFee")}</span>
+                <span>{order.deliveryFee === 0 ? "免费" : formatPrice(order.deliveryFee)}</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t border-border pt-2">
+              <span className="font-medium">{t("totalAmount")}</span>
               <span className="font-semibold text-primary">{formatPrice(order.totalAmount)}</span>
             </div>
           </div>
@@ -93,6 +127,14 @@ function AdminOrderDetailContent({ order }: { order: NonNullable<Awaited<ReturnT
           </div>
         </div>
       </div>
+
+      {/* 订单备注 */}
+      {order.note && (
+        <div className="mt-6 rounded-xl bg-card p-6 shadow-sm space-y-2">
+          <h2 className="text-lg font-semibold">{t("orderNote")}</h2>
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{order.note}</p>
+        </div>
+      )}
 
       {/* 订单商品 */}
       <div className="mt-6 rounded-xl bg-card p-6 shadow-sm">

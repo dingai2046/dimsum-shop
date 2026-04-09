@@ -23,12 +23,16 @@ interface ProductFormProps {
     description: string | null;
     price: number;
     originalPrice: number | null;
+    wholesalePrice: number | null;
     image: string | null;
     images: string[];
     categoryId: string;
     stock: number;
     isActive: boolean;
     sortOrder: number;
+    tags: string[];
+    servingSize: string | null;
+    soldCount: number;
   };
   categories: Category[];
 }
@@ -70,6 +74,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
     setLoading(true);
 
     const formData = new FormData(e.currentTarget);
+    const tagsRaw = (formData.get("tags") as string) || "";
     const body = {
       name: formData.get("name"),
       slug: formData.get("slug"),
@@ -78,10 +83,16 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       originalPrice: formData.get("originalPrice")
         ? Math.round(Number(formData.get("originalPrice")) * 100)
         : null,
+      wholesalePrice: formData.get("wholesalePrice")
+        ? Math.round(Number(formData.get("wholesalePrice")) * 100)
+        : null,
       categoryId: formData.get("categoryId"),
       stock: Number(formData.get("stock")),
       image: imageUrl || null,
       isActive: formData.get("isActive") === "on",
+      tags: tagsRaw ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean) : [],
+      servingSize: (formData.get("servingSize") as string) || null,
+      soldCount: Number(formData.get("soldCount")) || 0,
     };
 
     try {
@@ -148,7 +159,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
 
       <div className="rounded-xl bg-card p-6 shadow-sm space-y-4">
         <h2 className="text-lg font-semibold">价格与库存</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
             <label htmlFor="price" className="text-sm font-medium">售价（元）</label>
             <Input id="price" name="price" type="number" step="0.01" min="0" required defaultValue={product ? product.price / 100 : ""} placeholder="28.00" className="h-11 rounded-xl" />
@@ -158,8 +169,31 @@ export function ProductForm({ product, categories }: ProductFormProps) {
             <Input id="originalPrice" name="originalPrice" type="number" step="0.01" min="0" defaultValue={product?.originalPrice ? product.originalPrice / 100 : ""} placeholder="35.00" className="h-11 rounded-xl" />
           </div>
           <div className="space-y-2">
+            <label htmlFor="wholesalePrice" className="text-sm font-medium">批发价（元，可选）</label>
+            <Input id="wholesalePrice" name="wholesalePrice" type="number" step="0.01" min="0" defaultValue={product?.wholesalePrice ? product.wholesalePrice / 100 : ""} placeholder="20.00" className="h-11 rounded-xl" />
+          </div>
+          <div className="space-y-2">
             <label htmlFor="stock" className="text-sm font-medium">库存</label>
             <Input id="stock" name="stock" type="number" min="0" required defaultValue={product?.stock ?? 0} className="h-11 rounded-xl" />
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-xl bg-card p-6 shadow-sm space-y-4">
+        <h2 className="text-lg font-semibold">附加信息</h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="space-y-2">
+            <label htmlFor="tags" className="text-sm font-medium">标签</label>
+            <Input id="tags" name="tags" defaultValue={product?.tags?.join(", ") || ""} placeholder="招牌, 含猪肉, 辣" className="h-11 rounded-xl" />
+            <p className="text-xs text-muted-foreground">多个标签用逗号分隔</p>
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="servingSize" className="text-sm font-medium">份量</label>
+            <Input id="servingSize" name="servingSize" defaultValue={product?.servingSize || ""} placeholder="每份8只" className="h-11 rounded-xl" />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="soldCount" className="text-sm font-medium">销量</label>
+            <Input id="soldCount" name="soldCount" type="number" min="0" defaultValue={product?.soldCount ?? 0} className="h-11 rounded-xl" />
           </div>
         </div>
       </div>

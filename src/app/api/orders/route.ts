@@ -65,6 +65,14 @@ export async function POST(request: Request) {
       include: { items: true },
     });
 
+    // 扣减库存
+    for (const item of items) {
+      await prisma.product.update({
+        where: { id: item.productId },
+        data: { stock: { decrement: item.quantity }, soldCount: { increment: item.quantity } },
+      });
+    }
+
     return NextResponse.json({ order }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

@@ -64,10 +64,19 @@ export async function POST(request: Request) {
       console.error(`支付失败: 订单 ${orderNo}, 原因: ${paymentIntent.last_payment_error?.message}`);
 
       if (orderNo) {
-        await prisma.order.update({
+        const order = await prisma.order.update({
           where: { orderNo },
           data: { status: "CANCELLED" },
         });
+
+        // 恢复库存
+        const orderItems = await prisma.orderItem.findMany({ where: { orderId: order.id } });
+        for (const item of orderItems) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity }, soldCount: { decrement: item.quantity } },
+          });
+        }
       }
       break;
     }

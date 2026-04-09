@@ -17,11 +17,15 @@ export async function POST(request: Request) {
         description: body.description || null,
         price: body.price,
         originalPrice: body.originalPrice || null,
+        wholesalePrice: body.wholesalePrice || null,
         image: body.image || null,
         images: body.image ? [body.image] : [],
         categoryId: body.categoryId,
         stock: body.stock ?? 0,
         isActive: body.isActive ?? true,
+        tags: body.tags ?? [],
+        servingSize: body.servingSize || null,
+        soldCount: body.soldCount ?? 0,
       },
     });
     return NextResponse.json(product, { status: 201 });

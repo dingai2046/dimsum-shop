@@ -205,3 +205,11 @@ model Favorite {
   @@unique([userId, productId])
   @@map("favorites")
 }
+
+model SiteSettings {
+  id        String   @id @default("default")
+  data      Json     // 以 JSON 存储所有站点设置
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}

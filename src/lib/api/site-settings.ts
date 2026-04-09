@@ -1,5 +1,7 @@
 // 站点设置 — 后台可管理的全局内容
-// TODO: 后续存入数据库，通过后台 API 修改
+// 数据持久化到 site_settings 表，JSON 字段存储
+
+import { prisma } from "@/lib/prisma";
 
 export interface SiteSettings {
   // 公告广播
@@ -44,7 +46,7 @@ export interface SiteSettings {
   };
 }
 
-const defaultSettings: SiteSettings = {
+export const defaultSettings: SiteSettings = {
   announcement: {
     enabled: true,
     text: "🎉 新店开业！全场满 $50 免运费，使用优惠码 WELCOME10 立减 $10",
@@ -101,15 +103,61 @@ const defaultSettings: SiteSettings = {
   },
 };
 
-// 获取站点设置（后续替换为数据库查询）
+// 获取站点设置（从数据库读取，不存在则返回默认值）
 export async function getSiteSettings(): Promise<SiteSettings> {
-  return defaultSettings;
+  try {
+    const row = await prisma.siteSettings.findUnique({
+      where: { id: "default" },
+    });
+
+    if (row) {
+      const stored = row.data as Partial<SiteSettings>;
+      return {
+        announcement: { ...defaultSettings.announcement, ...stored.announcement },
+        about: { ...defaultSettings.about, ...stored.about },
+        contact: { ...defaultSettings.contact, ...stored.contact },
+        hero: { ...defaultSettings.hero, ...stored.hero },
+        brandPromise: { ...defaultSettings.brandPromise, ...stored.brandPromise },
+      };
+    }
+
+    return defaultSettings;
+  } catch (error) {
+    console.error("获取站点设置失败，使用默认值:", error);
+    return defaultSettings;
+  }
 }
 
-// 更新站点设置（后续替换为数据库写入）
+// 更新站点设置（写入数据库）
 export async function updateSiteSettings(
   updates: Partial<SiteSettings>
 ): Promise<SiteSettings> {
-  Object.assign(defaultSettings, updates);
-  return defaultSettings;
+  const existing = await prisma.siteSettings.findUnique({
+    where: { id: "default" },
+  });
+
+  const currentData = (existing?.data as Partial<SiteSettings>) || {};
+
+  // 合并更新
+  const merged = { ...currentData };
+  for (const key of Object.keys(updates) as (keyof SiteSettings)[]) {
+    if (updates[key] !== undefined) {
+      merged[key] = { ...(currentData[key] as Record<string, unknown>), ...updates[key] } as never;
+    }
+  }
+
+  const row = await prisma.siteSettings.upsert({
+    where: { id: "default" },
+    create: { id: "default", data: merged },
+    update: { data: merged },
+  });
+
+  const stored = row.data as Partial<SiteSettings>;
+  return {
+    announcement: { ...defaultSettings.announcement, ...stored.announcement },
+    about: { ...defaultSettings.about, ...stored.about },
+    contact: { ...defaultSettings.contact, ...stored.contact },
+    hero: { ...defaultSettings.hero, ...stored.hero },
+    brandPromise: { ...defaultSettings.brandPromise, ...stored.brandPromise },
+  };
 }

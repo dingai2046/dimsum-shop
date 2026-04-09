@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Package, ShoppingCart, LayoutDashboard, ArrowLeft, Grid3X3, Settings } from "lucide-react";
+import { Package, ShoppingCart, LayoutDashboard, ArrowLeft, Grid3X3, Settings, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ export function AdminSidebar() {
     { href: "/admin/products" as const, label: t("products"), icon: Package },
     { href: "/admin/categories" as const, label: t("categories"), icon: Grid3X3 },
     { href: "/admin/orders" as const, label: t("orders"), icon: ShoppingCart },
+    { href: "/admin/users" as const, label: t("users"), icon: Users },
     { href: "/admin/settings" as const, label: t("settings"), icon: Settings },
   ];
 
