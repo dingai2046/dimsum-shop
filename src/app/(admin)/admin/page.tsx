@@ -46,10 +46,13 @@ export default async function AdminDashboard() {
   const statusLabels: Record<string, string> = {
     PENDING: "待支付",
     PAID: "已支付",
-    PROCESSING: "处理中",
-    SHIPPED: "已发货",
+    CONFIRMED: "已确认",
+    PREPARING: "制作中",
+    READY: "待配送",
+    DELIVERING: "配送中",
     DELIVERED: "已送达",
     CANCELLED: "已取消",
+    REFUNDED: "已退款",
   };
 
   return (

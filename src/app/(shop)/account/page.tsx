@@ -17,8 +17,8 @@ export default async function AccountPage() {
 
   const orders = await getOrdersByUserId(session.user.id);
   const pendingCount = orders.filter((o) => o.status === "PENDING").length;
-  const paidCount = orders.filter((o) => o.status === "PAID" || o.status === "PROCESSING").length;
-  const shippedCount = orders.filter((o) => o.status === "SHIPPED").length;
+  const paidCount = orders.filter((o) => o.status === "PAID" || o.status === "CONFIRMED" || o.status === "PREPARING").length;
+  const deliveringCount = orders.filter((o) => o.status === "READY" || o.status === "DELIVERING").length;
 
   const menuItems = [
     { href: "/account/orders", label: "我的订单", desc: `${orders.length} 个订单`, icon: Package },
@@ -46,13 +46,13 @@ export default async function AccountPage() {
             <p className="text-2xl font-bold">{pendingCount}</p>
             <p className="text-xs text-primary-foreground/70">待支付</p>
           </Link>
-          <Link href="/account/orders?status=PAID" className="rounded-xl bg-white/10 p-3 hover:bg-white/20 transition-colors">
+          <Link href="/account/orders?status=PREPARING" className="rounded-xl bg-white/10 p-3 hover:bg-white/20 transition-colors">
             <p className="text-2xl font-bold">{paidCount}</p>
-            <p className="text-xs text-primary-foreground/70">待发货</p>
+            <p className="text-xs text-primary-foreground/70">制作中</p>
           </Link>
-          <Link href="/account/orders?status=SHIPPED" className="rounded-xl bg-white/10 p-3 hover:bg-white/20 transition-colors">
-            <p className="text-2xl font-bold">{shippedCount}</p>
-            <p className="text-xs text-primary-foreground/70">待收货</p>
+          <Link href="/account/orders?status=DELIVERING" className="rounded-xl bg-white/10 p-3 hover:bg-white/20 transition-colors">
+            <p className="text-2xl font-bold">{deliveringCount}</p>
+            <p className="text-xs text-primary-foreground/70">配送中</p>
           </Link>
         </div>
       </div>

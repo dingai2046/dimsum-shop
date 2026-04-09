@@ -7,8 +7,10 @@ const statusFilters = [
   { value: "all", label: "全部" },
   { value: "PENDING", label: "待支付" },
   { value: "PAID", label: "已支付" },
-  { value: "PROCESSING", label: "处理中" },
-  { value: "SHIPPED", label: "已发货" },
+  { value: "CONFIRMED", label: "已确认" },
+  { value: "PREPARING", label: "制作中" },
+  { value: "READY", label: "待配送" },
+  { value: "DELIVERING", label: "配送中" },
   { value: "DELIVERED", label: "已送达" },
   { value: "CANCELLED", label: "已取消" },
 ];

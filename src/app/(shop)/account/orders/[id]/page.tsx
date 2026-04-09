@@ -7,19 +7,23 @@ import { getOrderById, getStatusInfo } from "@/lib/api/orders";
 import { formatPrice } from "@/lib/utils/format";
 
 const statusTimeline = [
-  { status: "PENDING", label: "订单提交" },
-  { status: "PAID", label: "支付完成" },
-  { status: "PROCESSING", label: "商家备货" },
-  { status: "SHIPPED", label: "已发货" },
-  { status: "DELIVERED", label: "已送达" },
+  { status: "PENDING", label: "下单" },
+  { status: "PAID", label: "支付" },
+  { status: "CONFIRMED", label: "确认" },
+  { status: "PREPARING", label: "制作" },
+  { status: "READY", label: "出餐" },
+  { status: "DELIVERING", label: "配送" },
+  { status: "DELIVERED", label: "送达" },
 ];
 
 const statusOrder: Record<string, number> = {
   PENDING: 0,
   PAID: 1,
-  PROCESSING: 2,
-  SHIPPED: 3,
-  DELIVERED: 4,
+  CONFIRMED: 2,
+  PREPARING: 3,
+  READY: 4,
+  DELIVERING: 5,
+  DELIVERED: 6,
 };
 
 interface OrderDetailProps {
@@ -37,7 +41,7 @@ export default async function OrderDetailPage({ params }: OrderDetailProps) {
   const statusInfo = getStatusInfo(order.status);
   const currentStep = statusOrder[order.status] ?? -1;
   const isCancelled = order.status === "CANCELLED" || order.status === "REFUNDED";
-  const addr = order.addressSnapshot as { name?: string; phone?: string; province?: string; city?: string; district?: string; detail?: string };
+  const addr = order.addressSnapshot as { name?: string; phone?: string; street1?: string; street2?: string; suburb?: string; state?: string; postcode?: string; province?: string; city?: string; district?: string; detail?: string };
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
@@ -134,10 +138,13 @@ export default async function OrderDetailPage({ params }: OrderDetailProps) {
         <div className="space-y-1.5 text-sm text-muted-foreground">
           <p><span className="text-foreground font-medium">{addr.name}</span> {addr.phone}</p>
           <p>
-            {addr.province}
-            {addr.city}
-            {addr.district}
-            {addr.detail}
+            {addr.street1}
+            {addr.street2 ? `, ${addr.street2}` : ""}
+            {addr.suburb ? `, ${addr.suburb}` : ""}
+            {addr.state ? ` ${addr.state}` : ""}
+            {addr.postcode ? ` ${addr.postcode}` : ""}
+            {/* 兼容旧格式 */}
+            {addr.province}{addr.city}{addr.district}{addr.detail}
           </p>
         </div>
       </div>

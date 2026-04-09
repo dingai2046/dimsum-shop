@@ -16,14 +16,26 @@ enum UserRole {
   ADMIN
 }
 
+enum BuyerType {
+  RETAIL       // 个人零售
+  WHOLESALE    // 批发客户
+}
+
 enum OrderStatus {
-  PENDING     // 待支付
-  PAID        // 已支付
-  PROCESSING  // 处理中
-  SHIPPED     // 已发货
-  DELIVERED   // 已送达
-  CANCELLED   // 已取消
-  REFUNDED    // 已退款
+  PENDING      // 待支付
+  PAID         // 已支付
+  CONFIRMED    // 商家已确认
+  PREPARING    // 制作中
+  READY        // 待取餐/待配送
+  DELIVERING   // 配送中
+  DELIVERED    // 已送达/已取餐
+  CANCELLED    // 已取消
+  REFUNDED     // 已退款
+}
+
+enum DeliveryType {
+  DELIVERY     // 外送配送
+  PICKUP       // 门店自取
 }
 
 enum PointsType {
@@ -36,20 +48,22 @@ enum PointsType {
 // ==================== 模型 ====================
 
 model User {
-  id        String   @id @default(cuid())
-  email     String?  @unique
-  phone     String?  @unique
+  id        String    @id @default(cuid())
+  email     String?   @unique
+  phone     String?   @unique
   name      String?
   password  String?
   avatar    String?
-  points    Int      @default(0)
-  role      UserRole @default(CUSTOMER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  points    Int       @default(0)
+  role      UserRole  @default(CUSTOMER)
+  buyerType BuyerType @default(RETAIL)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   addresses    Address[]
   orders       Order[]
   pointRecords PointsRecord[]
+  favorites    Favorite[]
 
   @@map("users")
 }
@@ -60,6 +74,7 @@ model Category {
   slug        String   @unique
   description String?
   image       String?
+  icon        String?  // emoji or icon name
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -70,37 +85,47 @@ model Category {
 }
 
 model Product {
-  id            String   @id @default(cuid())
-  name          String
-  slug          String   @unique
-  description   String?
-  price         Int      // 价格（分）
-  originalPrice Int?     // 原价（分）
-  image         String?
-  images        String[] // 多图
-  categoryId    String
-  stock         Int      @default(0)
-  isActive      Boolean  @default(true)
-  sortOrder     Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  description      String?
+  price            Int      // 零售价（分）
+  originalPrice    Int?     // 原价（分）
+  wholesalePrice   Int?     // 批发价（分）
+  minOrderQuantity Int      @default(1)  // 最低起订量
+  image            String?
+  images           String[] // 多图
+  categoryId       String
+  stock            Int      @default(0)
+  soldCount        Int      @default(0)  // 累计销量
+  isActive         Boolean  @default(true)
+  isWholesaleOnly  Boolean  @default(false) // 仅批发
+  tags             String[] // 标签：辣度/过敏原/素食等
+  servingSize      String?  // 份量描述，如"每份8只"
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   category   Category    @relation(fields: [categoryId], references: [id])
   orderItems OrderItem[]
+  favorites  Favorite[]
 
   @@index([categoryId])
+  @@index([soldCount])
   @@map("products")
 }
 
+// 澳洲地址格式
 model Address {
   id        String   @id @default(cuid())
   userId    String
   name      String   // 收件人姓名
-  phone     String   // 收件人电话
-  province  String
-  city      String
-  district  String
-  detail    String   // 详细地址
+  phone     String   // 联系电话
+  street1   String   // 街道地址
+  street2   String?  // Unit/Apt（可选）
+  suburb    String   // 区/镇
+  state     String   // 州 VIC/NSW/QLD/SA/WA/TAS/NT/ACT
+  postcode  String   // 邮编
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -112,16 +137,20 @@ model Address {
 }
 
 model Order {
-  id              String      @id @default(cuid())
-  orderNo         String      @unique
+  id              String       @id @default(cuid())
+  orderNo         String       @unique
   userId          String
-  addressSnapshot Json        // 下单时的地址快照
-  totalAmount     Int         // 总金额（分）
-  status          OrderStatus @default(PENDING)
-  paymentId       String?     // Stripe Payment Intent ID
-  note            String?     // 订单备注
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  deliveryType    DeliveryType @default(DELIVERY)
+  addressSnapshot Json         // 下单时的地址/取餐人快照
+  deliveryFee     Int          @default(0)   // 配送费（分）
+  totalAmount     Int          // 总金额（分）含配送费
+  subtotal        Int          @default(0)   // 商品小计（分）
+  status          OrderStatus  @default(PENDING)
+  estimatedTime   DateTime?    // 预计送达/取餐时间
+  paymentId       String?      // Stripe Payment Intent ID
+  note            String?      // 订单备注
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   user         User           @relation(fields: [userId], references: [id])
   items        OrderItem[]
@@ -136,7 +165,7 @@ model OrderItem {
   id              String @id @default(cuid())
   orderId         String
   productId       String
-  productSnapshot Json   // 下单时的产品快照（名称、价格、图片）
+  productSnapshot Json   // 下单时的产品快照
   quantity        Int
   price           Int    // 单价（分）
 
@@ -161,4 +190,18 @@ model PointsRecord {
 
   @@index([userId])
   @@map("points_records")
+}
+
+// 收藏/常点
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("favorites")
 }

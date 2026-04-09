@@ -2,231 +2,305 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, MapPin, Shield } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ArrowLeft, MapPin, Store, Minus, Plus } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+const AU_STATES = ["VIC", "NSW", "QLD", "SA", "WA", "TAS", "NT", "ACT"];
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
-  const { items, totalPrice, clearCart } = useCart();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const {
+    items,
+    totalItems,
+    totalPrice,
+    deliveryType,
+    deliveryFee,
+    updateQuantity,
+    clearCart,
+  } = useCart();
 
-  // 未登录时引导登录
-  if (status === "unauthenticated") {
-    router.push("/login?callbackUrl=/checkout");
-    return null;
+  const [loading, setLoading] = useState(false);
+  const [note, setNote] = useState("");
+
+  // 地址表单
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    street1: "",
+    street2: "",
+    suburb: "",
+    state: "VIC",
+    postcode: "",
+  });
+
+  const updateForm = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const isValid = () => {
+    if (!form.name || !form.phone) return false;
+    if (deliveryType === "delivery") {
+      return !!(form.street1 && form.suburb && form.state && form.postcode);
+    }
+    return true; // 自取只需要姓名和电话
+  };
+
+  async function handleSubmit() {
+    if (!isValid() || items.length === 0) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            productId: item.productId,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+          })),
+          address: form,
+          deliveryType,
+          deliveryFee,
+          note,
+        }),
+      });
+
+      if (res.ok) {
+        const { order } = await res.json();
+        clearCart();
+        router.push(`/orders/success?orderNo=${order.orderNo}`);
+      } else {
+        const data = await res.json();
+        alert(data.error || "下单失败");
+      }
+    } catch {
+      alert("网络错误，请重试");
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <h1 className="text-xl font-bold">购物车为空</h1>
-        <p className="mt-2 text-muted-foreground">请先添加商品再结算</p>
-        <Link href="/products">
-          <Button className="mt-6 h-12 rounded-full px-8">去选购</Button>
+      <div className="mx-auto max-w-lg px-4 py-20 text-center">
+        <p className="text-muted-foreground">购物车为空</p>
+        <Link href="/" className="mt-2 inline-block text-sm font-medium text-primary">
+          去选购
         </Link>
       </div>
     );
   }
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const address = {
-      name: formData.get("name") as string,
-      phone: formData.get("phone") as string,
-      province: formData.get("province") as string,
-      city: formData.get("city") as string,
-      district: formData.get("district") as string,
-      detail: formData.get("detail") as string,
-    };
-
-    try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items, address }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "下单失败");
-        setLoading(false);
-        return;
-      }
-
-      clearCart();
-      router.push(`/orders/success?orderNo=${data.order.orderNo}`);
-    } catch {
-      setError("网络错误，请重试");
-      setLoading(false);
-    }
-  }
-
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 md:py-12">
+    <div className="mx-auto max-w-lg px-4 py-6 pb-32">
       <Link
-        href="/cart"
-        className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        href="/"
+        className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
-        返回购物车
+        返回菜单
       </Link>
 
-      <h1 className="mb-8 text-2xl font-bold">确认订单</h1>
+      <h1 className="mb-6 text-xl font-bold">确认订单</h1>
 
-      {error && (
-        <div className="mb-6 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
+      {/* 配送方式提示 */}
+      <div className="mb-4 flex items-center gap-2 rounded-xl bg-muted/50 px-4 py-3">
+        {deliveryType === "delivery" ? (
+          <>
+            <MapPin className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">外送配送</span>
+            <span className="text-xs text-muted-foreground">
+              {deliveryFee > 0 ? `配送费 ${formatPrice(deliveryFee)}` : "免配送费"}
+            </span>
+          </>
+        ) : (
+          <>
+            <Store className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">门店自取</span>
+            <span className="text-xs text-muted-foreground">免配送费</span>
+          </>
+        )}
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* 收货地址 */}
-        <section className="rounded-2xl bg-card p-6 shadow-sm">
-          <div className="mb-4 flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-semibold">收货信息</h2>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium">收件人</label>
+      {/* 联系信息 */}
+      <section className="mb-4 rounded-xl bg-card p-4 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold">
+          {deliveryType === "delivery" ? "配送信息" : "取餐人信息"}
+        </h2>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">姓名 *</label>
               <Input
-                id="name"
-                name="name"
-                placeholder="姓名"
-                required
-                defaultValue={session?.user?.name || ""}
-                className="h-11 rounded-xl"
+                value={form.name}
+                onChange={(e) => updateForm("name", e.target.value)}
+                placeholder="收件人姓名"
+                className="h-10 rounded-lg"
               />
             </div>
-            <div className="space-y-2">
-              <label htmlFor="phone" className="text-sm font-medium">手机号</label>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">电话 *</label>
               <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="11位手机号"
-                required
-                className="h-11 rounded-xl"
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="province" className="text-sm font-medium">省份</label>
-              <Input
-                id="province"
-                name="province"
-                placeholder="省份"
-                required
-                className="h-11 rounded-xl"
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="city" className="text-sm font-medium">城市</label>
-              <Input
-                id="city"
-                name="city"
-                placeholder="城市"
-                required
-                className="h-11 rounded-xl"
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="district" className="text-sm font-medium">区/县</label>
-              <Input
-                id="district"
-                name="district"
-                placeholder="区/县"
-                required
-                className="h-11 rounded-xl"
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="detail" className="text-sm font-medium">详细地址</label>
-              <Input
-                id="detail"
-                name="detail"
-                placeholder="街道、门牌号、楼层"
-                required
-                className="h-11 rounded-xl"
+                value={form.phone}
+                onChange={(e) => updateForm("phone", e.target.value)}
+                placeholder="04XX XXX XXX"
+                className="h-10 rounded-lg"
               />
             </div>
           </div>
-        </section>
 
-        {/* 订单商品 */}
-        <section className="rounded-2xl bg-card p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold">订单商品</h2>
-          <div className="space-y-3">
-            {items.map((item) => (
-              <div key={item.productId} className="flex items-center gap-3">
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                    sizes="56px"
+          {/* 外送地址 */}
+          {deliveryType === "delivery" && (
+            <>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">街道地址 *</label>
+                <Input
+                  value={form.street1}
+                  onChange={(e) => updateForm("street1", e.target.value)}
+                  placeholder="123 Smith Street"
+                  className="h-10 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Unit/Apt (可选)</label>
+                <Input
+                  value={form.street2}
+                  onChange={(e) => updateForm("street2", e.target.value)}
+                  placeholder="Unit 5, Level 2"
+                  className="h-10 rounded-lg"
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="mb-1 block text-xs text-muted-foreground">Suburb *</label>
+                  <Input
+                    value={form.suburb}
+                    onChange={(e) => updateForm("suburb", e.target.value)}
+                    placeholder="Fitzroy"
+                    className="h-10 rounded-lg"
                   />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{item.name}</p>
-                  <p className="text-xs text-muted-foreground">x{item.quantity}</p>
+                <div>
+                  <label className="mb-1 block text-xs text-muted-foreground">State *</label>
+                  <select
+                    value={form.state}
+                    onChange={(e) => updateForm("state", e.target.value)}
+                    className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"
+                  >
+                    {AU_STATES.map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
                 </div>
-                <span className="text-sm font-semibold">
-                  {formatPrice(item.price * item.quantity)}
-                </span>
+                <div>
+                  <label className="mb-1 block text-xs text-muted-foreground">Postcode *</label>
+                  <Input
+                    value={form.postcode}
+                    onChange={(e) => updateForm("postcode", e.target.value)}
+                    placeholder="3065"
+                    className="h-10 rounded-lg"
+                    maxLength={4}
+                  />
+                </div>
               </div>
-            ))}
-          </div>
-        </section>
+            </>
+          )}
 
-        {/* 费用汇总 + 提交 */}
-        <section className="rounded-2xl bg-card p-6 shadow-sm">
-          <div className="space-y-3">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">商品合计</span>
-              <span>{formatPrice(totalPrice)}</span>
+          {/* 自取门店信息 */}
+          {deliveryType === "pickup" && (
+            <div className="rounded-lg bg-muted/50 p-3">
+              <p className="text-sm font-medium">取餐地址</p>
+              <p className="text-xs text-muted-foreground">123 Smith St, Fitzroy VIC 3065</p>
+              <p className="text-xs text-muted-foreground">营业时间：10:00 - 21:00</p>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">运费</span>
-              <span className="text-green-600">免运费</span>
-            </div>
-            <div className="border-t border-border pt-3">
-              <div className="flex justify-between">
-                <span className="text-lg font-bold">应付总额</span>
-                <span className="text-2xl font-bold text-primary">
-                  {formatPrice(totalPrice)}
-                </span>
+          )}
+        </div>
+      </section>
+
+      {/* 商品列表 */}
+      <section className="mb-4 rounded-xl bg-card p-4 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold">商品清单 ({totalItems}件)</h2>
+        <div className="divide-y divide-border/50">
+          {items.map((item) => (
+            <div key={item.productId} className="flex items-center gap-3 py-2.5">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
+                <Image
+                  src={item.image || "/images/products/xiajiao.jpg"}
+                  alt={item.name}
+                  fill
+                  className="object-cover"
+                  sizes="48px"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium line-clamp-1">{item.name}</p>
+                <p className="text-xs text-primary font-medium">{formatPrice(item.price)}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                  className="flex h-6 w-6 items-center justify-center rounded-full border border-border"
+                >
+                  <Minus className="h-3 w-3" />
+                </button>
+                <span className="w-5 text-center text-xs font-semibold">{item.quantity}</span>
+                <button
+                  onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                >
+                  <Plus className="h-3 w-3" />
+                </button>
               </div>
             </div>
-          </div>
+          ))}
+        </div>
+      </section>
 
+      {/* 备注 */}
+      <section className="mb-4 rounded-xl bg-card p-4 shadow-sm">
+        <label className="mb-2 block text-sm font-semibold">订单备注</label>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="备注口味偏好、过敏信息等（选填）"
+          className="w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground/50 focus:border-ring focus:ring-1 focus:ring-ring"
+          rows={2}
+        />
+      </section>
+
+      {/* 费用汇总 + 下单 — fixed 在底部 */}
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background px-4 py-3 md:static md:mt-4 md:rounded-xl md:border md:shadow-sm">
+        <div className="mx-auto max-w-lg space-y-1.5">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">商品小计</span>
+            <span>{formatPrice(totalPrice - deliveryFee)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">配送费</span>
+            <span className={deliveryFee === 0 ? "text-green-600" : ""}>
+              {deliveryFee === 0 ? "免费" : formatPrice(deliveryFee)}
+            </span>
+          </div>
+          <div className="flex justify-between border-t border-border pt-2">
+            <span className="font-bold">合计</span>
+            <span className="text-lg font-bold text-primary">{formatPrice(totalPrice)}</span>
+          </div>
           <Button
-            type="submit"
-            disabled={loading}
-            className="mt-6 h-12 w-full rounded-full text-base font-semibold shadow-lg shadow-primary/20"
+            onClick={handleSubmit}
+            disabled={!isValid() || loading}
+            className="w-full h-12 rounded-xl text-base font-bold"
           >
-            {loading ? "提交中..." : "提交订单"}
+            {loading ? "提交中..." : `提交订单 ${formatPrice(totalPrice)}`}
           </Button>
-
-          <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
-            <Shield className="h-3.5 w-3.5" />
-            <span>安全支付，信息加密传输</span>
-          </div>
-        </section>
-      </form>
+        </div>
+      </div>
     </div>
   );
 }

@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 const statusTabs = [
   { value: "all", label: "全部" },
   { value: "PENDING", label: "待支付" },
-  { value: "PAID", label: "待发货" },
-  { value: "SHIPPED", label: "待收货" },
+  { value: "PREPARING", label: "制作中" },
+  { value: "DELIVERING", label: "配送中" },
   { value: "DELIVERED", label: "已完成" },
 ];
 

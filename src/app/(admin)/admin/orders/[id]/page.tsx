@@ -17,7 +17,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   if (!order) notFound();
 
   const statusInfo = getStatusInfo(order.status);
-  const addr = order.addressSnapshot as { name?: string; phone?: string; province?: string; city?: string; district?: string; detail?: string };
+  const addr = order.addressSnapshot as { name?: string; phone?: string; street1?: string; street2?: string; suburb?: string; state?: string; postcode?: string; province?: string; city?: string; district?: string; detail?: string };
 
   return (
     <div>
@@ -75,10 +75,12 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             <div className="flex justify-between">
               <span className="text-muted-foreground">地址</span>
               <span className="text-right max-w-[200px]">
-                {addr.province}
-                {addr.city}
-                {addr.district}
-                {addr.detail}
+                {addr.street1}
+                {addr.street2 ? `, ${addr.street2}` : ""}
+                {addr.suburb ? `, ${addr.suburb}` : ""}
+                {addr.state ? ` ${addr.state}` : ""}
+                {addr.postcode ? ` ${addr.postcode}` : ""}
+                {addr.province}{addr.city}{addr.district}{addr.detail}
               </span>
             </div>
           </div>

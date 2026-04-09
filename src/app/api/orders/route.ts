@@ -16,21 +16,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "请先登录" }, { status: 401 });
     }
 
-    const { items, address } = await request.json();
+    const { items, address, deliveryType, deliveryFee, note } = await request.json();
 
     if (!items?.length) {
       return NextResponse.json({ error: "购物车为空" }, { status: 400 });
     }
 
-    if (!address?.name || !address?.phone || !address?.detail) {
-      return NextResponse.json({ error: "请填写完整的收货信息" }, { status: 400 });
+    if (!address?.name || !address?.phone) {
+      return NextResponse.json({ error: "请填写联系信息" }, { status: 400 });
     }
 
-    const totalAmount = items.reduce(
+    const subtotal = items.reduce(
       (sum: number, item: { price: number; quantity: number }) =>
         sum + item.price * item.quantity,
       0
     );
+    const fee = deliveryFee || 0;
+    const totalAmount = subtotal + fee;
 
     const orderNo = generateOrderNo();
 
@@ -38,8 +40,12 @@ export async function POST(request: Request) {
       data: {
         orderNo,
         userId: session.user.id,
+        deliveryType: deliveryType === "pickup" ? "PICKUP" : "DELIVERY",
+        deliveryFee: fee,
+        subtotal,
         totalAmount,
         status: "PENDING",
+        note: note || null,
         addressSnapshot: address,
         items: {
           create: items.map(

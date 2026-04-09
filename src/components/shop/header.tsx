@@ -1,21 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, Search, User, LogOut } from "lucide-react";
+import { User, LogOut, ClipboardList } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/lib/cart-context";
 
 export function Header() {
-  const { totalItems } = useCart();
   const { data: session } = useSession();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:h-16">
-        {/* Logo — 模拟招牌风格 */}
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="text-2xl font-black tracking-tight text-primary md:text-3xl" style={{ fontFamily: "'KaiTi', 'STKaiti', 'SimKai', serif" }}>
+          <span
+            className="text-2xl font-black tracking-tight text-primary md:text-3xl"
+            style={{ fontFamily: "'KaiTi', 'STKaiti', 'SimKai', serif" }}
+          >
             東方點心
           </span>
           <div className="hidden flex-col md:flex">
@@ -29,18 +30,18 @@ export function Header() {
         </Link>
 
         {/* 桌面端导航 */}
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-6 md:flex">
           <Link
-            href="/products"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            href="/"
+            className="text-sm font-medium text-foreground transition-colors hover:text-primary"
           >
-            全部点心
+            菜单
           </Link>
           <Link
-            href="/categories"
+            href="/account/orders"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            分类浏览
+            我的订单
           </Link>
           <Link
             href="/about"
@@ -52,24 +53,14 @@ export function Header() {
 
         {/* 右侧操作 */}
         <div className="flex items-center gap-1">
-          <Link href="/search">
+          <Link href="/account/orders" className="md:hidden">
             <Button variant="ghost" size="icon" className="text-muted-foreground">
-              <Search className="h-5 w-5" />
-            </Button>
-          </Link>
-          <Link href="/cart">
-            <Button variant="ghost" size="icon" className="relative text-muted-foreground">
-              <ShoppingBag className="h-5 w-5" />
-              {totalItems > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                  {totalItems > 99 ? "99+" : totalItems}
-                </span>
-              )}
+              <ClipboardList className="h-5 w-5" />
             </Button>
           </Link>
 
           {session?.user ? (
-            <div className="hidden items-center gap-2 md:flex">
+            <div className="flex items-center gap-1">
               <Link href="/account">
                 <Button variant="ghost" size="icon" className="text-muted-foreground">
                   <User className="h-5 w-5" />
@@ -78,14 +69,14 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground"
+                className="hidden text-muted-foreground md:flex"
                 onClick={() => signOut()}
               >
                 <LogOut className="h-5 w-5" />
               </Button>
             </div>
           ) : (
-            <Link href="/login" className="hidden md:block">
+            <Link href="/login">
               <Button variant="ghost" className="text-sm text-muted-foreground">
                 登录
               </Button>

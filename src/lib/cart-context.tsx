@@ -18,19 +18,33 @@ export interface CartItem {
   quantity: number;
 }
 
+export type DeliveryType = "delivery" | "pickup";
+export type BuyerType = "retail" | "wholesale";
+
 interface CartContextType {
   items: CartItem[];
   totalItems: number;
   totalPrice: number; // 分
+  deliveryType: DeliveryType;
+  buyerType: BuyerType;
+  deliveryFee: number; // 分
+  setDeliveryType: (type: DeliveryType) => void;
+  setBuyerType: (type: BuyerType) => void;
   addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  getItemQuantity: (productId: string) => number;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
 
 const CART_STORAGE_KEY = "dongfang-cart";
+const PREFS_STORAGE_KEY = "dongfang-prefs";
+
+// 配送费规则（分）
+const DELIVERY_FEE = 500; // $5
+const FREE_DELIVERY_THRESHOLD = 5000; // 满$50免运费
 
 function loadCart(): CartItem[] {
   if (typeof window === "undefined") return [];
@@ -42,28 +56,57 @@ function loadCart(): CartItem[] {
   }
 }
 
+function loadPrefs(): { deliveryType: DeliveryType; buyerType: BuyerType } {
+  if (typeof window === "undefined") return { deliveryType: "delivery", buyerType: "retail" };
+  try {
+    const data = localStorage.getItem(PREFS_STORAGE_KEY);
+    return data ? JSON.parse(data) : { deliveryType: "delivery", buyerType: "retail" };
+  } catch {
+    return { deliveryType: "delivery", buyerType: "retail" };
+  }
+}
+
 function saveCart(items: CartItem[]) {
   try {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-  } catch {
-    // localStorage 不可用时静默失败
-  }
+  } catch {}
+}
+
+function savePrefs(prefs: { deliveryType: DeliveryType; buyerType: BuyerType }) {
+  try {
+    localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(prefs));
+  } catch {}
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [deliveryType, setDeliveryTypeState] = useState<DeliveryType>("delivery");
+  const [buyerType, setBuyerTypeState] = useState<BuyerType>("retail");
   const [mounted, setMounted] = useState(false);
 
-  // 客户端挂载后从 localStorage 恢复
   useEffect(() => {
     setItems(loadCart());
+    const prefs = loadPrefs();
+    setDeliveryTypeState(prefs.deliveryType);
+    setBuyerTypeState(prefs.buyerType);
     setMounted(true);
   }, []);
 
-  // 数据变化时持久化
   useEffect(() => {
     if (mounted) saveCart(items);
   }, [items, mounted]);
+
+  useEffect(() => {
+    if (mounted) savePrefs({ deliveryType, buyerType });
+  }, [deliveryType, buyerType, mounted]);
+
+  const setDeliveryType = useCallback((type: DeliveryType) => {
+    setDeliveryTypeState(type);
+  }, []);
+
+  const setBuyerType = useCallback((type: BuyerType) => {
+    setBuyerTypeState(type);
+  }, []);
 
   const addItem = useCallback(
     (item: Omit<CartItem, "quantity">, quantity = 1) => {
@@ -100,8 +143,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems([]);
   }, []);
 
+  const getItemQuantity = useCallback(
+    (productId: string) => {
+      return items.find((i) => i.productId === productId)?.quantity || 0;
+    },
+    [items]
+  );
+
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
-  const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const deliveryFee =
+    deliveryType === "pickup" ? 0 : subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+  const totalPrice = subtotal + deliveryFee;
 
   return (
     <CartContext.Provider
@@ -109,10 +162,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         items,
         totalItems,
         totalPrice,
+        deliveryType,
+        buyerType,
+        deliveryFee,
+        setDeliveryType,
+        setBuyerType,
         addItem,
         removeItem,
         updateQuantity,
         clearCart,
+        getItemQuantity,
       }}
     >
       {children}

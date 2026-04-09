@@ -45,26 +45,29 @@ export async function getProductBySlug(slug: string) {
   });
 }
 
-export async function getFeaturedProducts(limit = 4) {
-  // 返回热门推荐分类的产品优先
-  const popular = await prisma.product.findMany({
-    where: { isActive: true, category: { slug: "popular" } },
+export async function getFeaturedProducts(limit = 8) {
+  // 按销量排序返回热销产品
+  return prisma.product.findMany({
+    where: { isActive: true },
     include: { category: true },
-    orderBy: { sortOrder: "asc" },
+    orderBy: { soldCount: "desc" },
     take: limit,
   });
+}
 
-  if (popular.length >= limit) return popular;
-
-  // 补充其他产品
-  const remaining = await prisma.product.findMany({
-    where: { isActive: true, NOT: { category: { slug: "popular" } } },
-    include: { category: true },
+// 获取所有分类及其产品（菜单页用）
+export async function getMenuData() {
+  const categories = await prisma.category.findMany({
     orderBy: { sortOrder: "asc" },
-    take: limit - popular.length,
+    include: {
+      products: {
+        where: { isActive: true },
+        orderBy: { sortOrder: "asc" },
+        include: { category: true },
+      },
+    },
   });
-
-  return [...popular, ...remaining];
+  return categories;
 }
 
 export async function getRelatedProducts(productSlug: string, limit = 4) {

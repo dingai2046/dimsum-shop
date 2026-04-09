@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma";
 
-// 状态标签映射
+// 状态标签映射（外卖订单流程）
 const statusLabels: Record<string, { label: string; color: string }> = {
   PENDING: { label: "待支付", color: "bg-yellow-50 text-yellow-600" },
   PAID: { label: "已支付", color: "bg-blue-50 text-blue-600" },
-  PROCESSING: { label: "处理中", color: "bg-indigo-50 text-indigo-600" },
-  SHIPPED: { label: "已发货", color: "bg-purple-50 text-purple-600" },
+  CONFIRMED: { label: "商家已确认", color: "bg-indigo-50 text-indigo-600" },
+  PREPARING: { label: "制作中", color: "bg-orange-50 text-orange-600" },
+  READY: { label: "待取餐", color: "bg-purple-50 text-purple-600" },
+  DELIVERING: { label: "配送中", color: "bg-cyan-50 text-cyan-600" },
   DELIVERED: { label: "已送达", color: "bg-green-50 text-green-600" },
   CANCELLED: { label: "已取消", color: "bg-gray-100 text-gray-500" },
   REFUNDED: { label: "已退款", color: "bg-red-50 text-red-600" },
