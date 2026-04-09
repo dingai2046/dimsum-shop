@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     // 创建用户
     const hashedPassword = await bcrypt.hash(password, 10);
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         name,
         email,
@@ -42,8 +42,42 @@ export async function POST(request: Request) {
       },
     });
 
+    // 新用户注册奖励：100积分 + $5优惠券
+    let couponCode = "";
+    try {
+      await prisma.pointsRecord.create({
+        data: {
+          userId: user.id,
+          points: 100,
+          type: "ADJUST",
+          description: "新用户注册奖励",
+        },
+      });
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { points: 100 },
+      });
+
+      couponCode = "WELCOME" + user.id.slice(-6).toUpperCase();
+      await prisma.coupon.create({
+        data: {
+          code: couponCode,
+          type: "FIXED",
+          value: 500, // $5
+          minOrder: 2000, // 满 $20 可用
+          totalLimit: 1,
+          perUserLimit: 1,
+          isNewUserOnly: true,
+          description: "新用户首单优惠 $5",
+          endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30天有效
+        },
+      });
+    } catch (bonusError) {
+      console.error("发放新用户奖励失败:", bonusError);
+    }
+
     return NextResponse.json(
-      { message: "注册成功" },
+      { message: "注册成功", couponCode },
       { status: 201 }
     );
   } catch (error) {

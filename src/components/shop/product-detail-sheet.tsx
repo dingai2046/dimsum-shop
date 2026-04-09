@@ -6,6 +6,8 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
+import { FavoriteButton } from "@/components/shop/favorite-button";
+import { ReviewSummary } from "@/components/shop/product-reviews";
 
 interface ProductDetailSheetProps {
   product: {
@@ -23,9 +25,13 @@ interface ProductDetailSheetProps {
   } | null;
   open: boolean;
   onClose: () => void;
+  /** 是否已收藏 */
+  isFavorited?: boolean;
+  /** 收藏记录 ID */
+  favoriteId?: string;
 }
 
-export function ProductDetailSheet({ product, open, onClose }: ProductDetailSheetProps) {
+export function ProductDetailSheet({ product, open, onClose, isFavorited, favoriteId }: ProductDetailSheetProps) {
   const { addItem, updateQuantity, getItemQuantity } = useCart();
   const sheetRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("product");
@@ -131,7 +137,15 @@ export function ProductDetailSheet({ product, open, onClose }: ProductDetailShee
         <div className="px-4 pb-6 pt-1">
           <div className="flex items-start justify-between animate-fade-up">
             <div>
-              <span className="text-xs text-muted-foreground">{product.category.name}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-muted-foreground">{product.category.name}</span>
+                <FavoriteButton
+                  productId={product.id}
+                  initialFavorited={!!isFavorited}
+                  favoriteId={favoriteId}
+                  className="ml-1"
+                />
+              </div>
               <h2 className="text-lg font-bold leading-tight">{product.name}</h2>
             </div>
             <div className="text-right">
@@ -169,6 +183,11 @@ export function ProductDetailSheet({ product, open, onClose }: ProductDetailShee
               {product.description}
             </p>
           )}
+
+          {/* 评价摘要 */}
+          <div className="mt-3 animate-fade-up" style={{ animationDelay: "120ms" }}>
+            <ReviewSummary productId={product.id} />
+          </div>
 
           {/* 服务保障 */}
           <div className="mt-4 flex gap-3 animate-fade-up" style={{ animationDelay: "150ms" }}>

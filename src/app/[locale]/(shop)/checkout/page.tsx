@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, MapPin, Store, Minus, Plus, CreditCard, Loader2 } from "lucide-react";
+import { ArrowLeft, MapPin, Store, Minus, Plus, CreditCard, Loader2, ChevronDown, Tag, X } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useTranslations } from "next-intl";
@@ -78,13 +78,93 @@ export default function CheckoutPage() {
   const [orderNo, setOrderNo] = useState("");
   const [step, setStep] = useState<"info" | "payment">("info");
 
+  // 已保存地址
+  interface SavedAddress {
+    id: string;
+    name: string;
+    phone: string;
+    street1: string;
+    street2: string | null;
+    suburb: string;
+    state: string;
+    postcode: string;
+    isDefault: boolean;
+  }
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | "new">("new");
+  const [addressDropdownOpen, setAddressDropdownOpen] = useState(false);
+
+  // 优惠券状态
+  const [couponCode, setCouponCode] = useState("");
+  const [couponApplied, setCouponApplied] = useState(false);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponType, setCouponType] = useState<string>("");
+  const [couponMsg, setCouponMsg] = useState("");
+  const [couponError, setCouponError] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+
   const [form, setForm] = useState({
     name: "", phone: "", street1: "", street2: "",
     suburb: "", state: "VIC", postcode: "",
   });
 
+  // 获取用户已保存地址
+  useEffect(() => {
+    async function fetchAddresses() {
+      try {
+        const res = await fetch("/api/addresses");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.addresses && data.addresses.length > 0) {
+          setSavedAddresses(data.addresses);
+          // 自动选中默认地址
+          const defaultAddr = data.addresses.find((a: SavedAddress) => a.isDefault);
+          const target = defaultAddr || data.addresses[0];
+          setSelectedAddressId(target.id);
+          setForm({
+            name: target.name,
+            phone: target.phone,
+            street1: target.street1,
+            street2: target.street2 || "",
+            suburb: target.suburb,
+            state: target.state,
+            postcode: target.postcode,
+          });
+        }
+      } catch {
+        // 未登录或网络错误，忽略
+      }
+    }
+    fetchAddresses();
+  }, []);
+
+  const handleSelectAddress = (addressId: string) => {
+    setSelectedAddressId(addressId);
+    setAddressDropdownOpen(false);
+    if (addressId === "new") {
+      setForm({ name: "", phone: "", street1: "", street2: "", suburb: "", state: "VIC", postcode: "" });
+    } else {
+      const addr = savedAddresses.find((a) => a.id === addressId);
+      if (addr) {
+        setForm({
+          name: addr.name,
+          phone: addr.phone,
+          street1: addr.street1,
+          street2: addr.street2 || "",
+          suburb: addr.suburb,
+          state: addr.state,
+          postcode: addr.postcode,
+        });
+      }
+    }
+  };
+
   const updateForm = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    // 手动修改时切换到新地址模式
+    if (selectedAddressId !== "new") {
+      setSelectedAddressId("new");
+    }
   };
 
   const isValid = () => {
@@ -94,6 +174,52 @@ export default function CheckoutPage() {
     }
     return true;
   };
+
+  // 计算实际优惠金额（FREE_DELIVERY 取配送费）
+  const actualDiscount = couponApplied
+    ? (couponType === "FREE_DELIVERY" ? deliveryFee : couponDiscount)
+    : 0;
+  const finalTotal = totalPrice - actualDiscount;
+
+  // 验证优惠券
+  async function handleApplyCoupon() {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponError("");
+    setCouponMsg("");
+
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode.trim(), subtotal: totalPrice - deliveryFee }),
+      });
+      const data = await res.json();
+
+      if (data.valid) {
+        setCouponApplied(true);
+        setCouponDiscount(data.discount);
+        setCouponType(data.type);
+        const displayDiscount = data.type === "FREE_DELIVERY" ? deliveryFee : data.discount;
+        setCouponMsg(t("couponApplied", { amount: formatPrice(displayDiscount) }));
+      } else {
+        setCouponError(data.error || t("couponInvalid"));
+      }
+    } catch {
+      setCouponError(t("networkError"));
+    } finally {
+      setCouponLoading(false);
+    }
+  }
+
+  function handleRemoveCoupon() {
+    setCouponApplied(false);
+    setCouponDiscount(0);
+    setCouponType("");
+    setCouponMsg("");
+    setCouponError("");
+    setCouponCode("");
+  }
 
   // Step 1: 创建订单 + 获取 Stripe clientSecret
   async function handleCreateOrder() {
@@ -117,6 +243,7 @@ export default function CheckoutPage() {
           deliveryType,
           deliveryFee,
           note,
+          couponCode: couponApplied ? couponCode.trim() : undefined,
         }),
       });
 
@@ -135,7 +262,7 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: totalPrice,
+          amount: finalTotal,
           orderNo: order.orderNo,
           items: items.map((i) => ({ name: i.name, quantity: i.quantity })),
         }),
@@ -184,7 +311,7 @@ export default function CheckoutPage() {
         <section className="rounded-xl bg-card p-4 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <span className="text-sm text-muted-foreground">{t("orderNo", { no: orderNo })}</span>
-            <span className="text-lg font-bold text-primary">{formatPrice(totalPrice)}</span>
+            <span className="text-lg font-bold text-primary">{formatPrice(finalTotal)}</span>
           </div>
           <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: "stripe" } }}>
             <PaymentForm orderNo={orderNo} onSuccess={() => router.push(`/orders/success?orderNo=${orderNo}`)} />
@@ -211,6 +338,62 @@ export default function CheckoutPage() {
               </>
             )}
           </div>
+
+          {/* 已保存地址选择器 */}
+          {savedAddresses.length > 0 && (
+            <section className="mb-4 rounded-xl bg-card p-4 shadow-sm">
+              <h2 className="mb-3 text-sm font-semibold">{t("savedAddresses")}</h2>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setAddressDropdownOpen(!addressDropdownOpen)}
+                  className="flex w-full items-center justify-between rounded-lg border border-input bg-background px-3 py-2.5 text-sm transition-colors hover:border-ring"
+                >
+                  <span className={selectedAddressId === "new" ? "text-muted-foreground" : ""}>
+                    {selectedAddressId === "new"
+                      ? t("newAddress")
+                      : (() => {
+                          const addr = savedAddresses.find((a) => a.id === selectedAddressId);
+                          return addr ? `${addr.name} - ${addr.street1}, ${addr.suburb}` : t("selectAddress");
+                        })()
+                    }
+                  </span>
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${addressDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+                {addressDropdownOpen && (
+                  <div className="absolute left-0 right-0 top-full z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border border-border bg-background shadow-lg">
+                    {savedAddresses.map((addr) => (
+                      <button
+                        key={addr.id}
+                        type="button"
+                        onClick={() => handleSelectAddress(addr.id)}
+                        className={`flex w-full flex-col items-start px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/50 ${selectedAddressId === addr.id ? "bg-primary/5 text-primary" : ""}`}
+                      >
+                        <span className="font-medium">
+                          {addr.name} · {addr.phone}
+                          {addr.isDefault && (
+                            <span className="ml-1.5 inline-block rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                              {t("selectAddress").charAt(0) === "选" ? "默认" : "Default"}
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {addr.street1}{addr.street2 ? `, ${addr.street2}` : ""}, {addr.suburb} {addr.state} {addr.postcode}
+                        </span>
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectAddress("new")}
+                      className={`flex w-full items-center px-3 py-2.5 text-left text-sm font-medium transition-colors hover:bg-muted/50 ${selectedAddressId === "new" ? "text-primary" : "text-muted-foreground"}`}
+                    >
+                      + {t("newAddress")}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
 
           {/* 联系信息 */}
           <section className="mb-4 rounded-xl bg-card p-4 shadow-sm">
@@ -307,6 +490,45 @@ export default function CheckoutPage() {
             />
           </section>
 
+          {/* 优惠券 */}
+          <section className="mb-4 rounded-xl bg-card p-4 shadow-sm">
+            <label className="mb-2 flex items-center gap-1.5 text-sm font-semibold">
+              <Tag className="h-4 w-4" />
+              {t("couponCode")}
+            </label>
+            {couponApplied ? (
+              <div className="flex items-center justify-between rounded-lg bg-green-50 px-3 py-2.5 dark:bg-green-900/20">
+                <span className="text-sm font-medium text-green-700 dark:text-green-400">{couponMsg}</span>
+                <button onClick={handleRemoveCoupon} className="text-muted-foreground hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex gap-2">
+                  <Input
+                    value={couponCode}
+                    onChange={(e) => { setCouponCode(e.target.value); setCouponError(""); }}
+                    placeholder={t("couponCode")}
+                    className="h-10 flex-1 rounded-lg uppercase"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleApplyCoupon}
+                    disabled={!couponCode.trim() || couponLoading}
+                    className="h-10 rounded-lg px-4"
+                  >
+                    {couponLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("applyCoupon")}
+                  </Button>
+                </div>
+                {couponError && (
+                  <p className="mt-2 text-xs text-destructive">{couponError}</p>
+                )}
+              </>
+            )}
+          </section>
+
           {/* 费用汇总 + 下单 */}
           <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background px-4 py-3 md:static md:mt-4 md:rounded-xl md:border md:shadow-sm">
             <div className="mx-auto max-w-lg space-y-1.5">
@@ -316,13 +538,19 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{tCart("deliveryFee")}</span>
-                <span className={deliveryFee === 0 ? "text-green-600" : ""}>
-                  {deliveryFee === 0 ? tCommon("free") : formatPrice(deliveryFee)}
+                <span className={deliveryFee === 0 || (couponApplied && couponType === "FREE_DELIVERY") ? "text-green-600" : ""}>
+                  {deliveryFee === 0 || (couponApplied && couponType === "FREE_DELIVERY") ? tCommon("free") : formatPrice(deliveryFee)}
                 </span>
               </div>
+              {couponApplied && actualDiscount > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{t("discount")}</span>
+                  <span className="text-green-600">-{formatPrice(actualDiscount)}</span>
+                </div>
+              )}
               <div className="flex justify-between border-t border-border pt-2">
                 <span className="font-bold">{tCart("total")}</span>
-                <span className="text-lg font-bold text-primary">{formatPrice(totalPrice)}</span>
+                <span className="text-lg font-bold text-primary">{formatPrice(finalTotal)}</span>
               </div>
               <Button
                 onClick={handleCreateOrder}
@@ -332,7 +560,7 @@ export default function CheckoutPage() {
                 {loading ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t("submitting")}</>
                 ) : (
-                  t("submitOrder", { price: formatPrice(totalPrice) })
+                  t("submitOrder", { price: formatPrice(finalTotal) })
                 )}
               </Button>
             </div>

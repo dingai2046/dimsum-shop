@@ -25,6 +25,7 @@ interface CartContextType {
   items: CartItem[];
   totalItems: number;
   totalPrice: number; // 分
+  subtotal: number; // 分（不含配送费）
   deliveryType: DeliveryType;
   buyerType: BuyerType;
   deliveryFee: number; // 分
@@ -44,7 +45,8 @@ const PREFS_STORAGE_KEY = "dongfang-prefs";
 
 // 配送费规则（分）
 const DELIVERY_FEE = 500; // $5
-const FREE_DELIVERY_THRESHOLD = 5000; // 满$50免运费
+export const FREE_DELIVERY_THRESHOLD = 5000; // 满$50免运费
+export const MIN_ORDER_AMOUNT = 2000; // 外送满$20起送
 
 function loadCart(): CartItem[] {
   if (typeof window === "undefined") return [];
@@ -162,6 +164,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         items,
         totalItems,
         totalPrice,
+        subtotal,
         deliveryType,
         buyerType,
         deliveryFee,

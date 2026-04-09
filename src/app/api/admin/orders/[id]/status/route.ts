@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendOrderStatusUpdate } from "@/lib/email";
 
 export async function PUT(
   request: Request,
@@ -27,7 +28,17 @@ export async function PUT(
     const order = await prisma.order.update({
       where: { id },
       data: { status },
+      include: { user: { select: { email: true } } },
     });
+
+    // 发送订单状态更新邮件（不阻塞主流程）
+    try {
+      if (order.user?.email) {
+        sendOrderStatusUpdate(order.user.email, order.orderNo, status);
+      }
+    } catch (emailError) {
+      console.error("发送订单状态更新邮件失败:", emailError);
+    }
 
     return NextResponse.json({ order });
   } catch (error) {

@@ -3,8 +3,9 @@
 import { useRef, useEffect } from "react";
 import { Minus, Plus, Trash2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCart } from "@/lib/cart-context";
+import { useCart, FREE_DELIVERY_THRESHOLD } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
+import { CartRecommendations } from "@/components/shop/cart-recommendations";
 import Image from "next/image";
 
 interface CartSheetProps {
@@ -13,7 +14,7 @@ interface CartSheetProps {
 }
 
 export function CartSheet({ open, onClose }: CartSheetProps) {
-  const { items, totalItems, totalPrice, deliveryFee, deliveryType, updateQuantity, clearCart } = useCart();
+  const { items, totalItems, totalPrice, subtotal, deliveryFee, deliveryType, updateQuantity, clearCart } = useCart();
   const t = useTranslations("cart");
   const sheetRef = useRef<HTMLDivElement>(null);
 
@@ -145,6 +146,30 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
             </div>
           )}
         </div>
+
+        {/* 免运费进度条 */}
+        {items.length > 0 && deliveryType === "delivery" && (
+          <div className="px-4 py-2">
+            {subtotal < FREE_DELIVERY_THRESHOLD ? (
+              <div className="flex items-center gap-2">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className="h-full rounded-full bg-green-500 transition-all duration-300"
+                    style={{ width: `${Math.min((subtotal / FREE_DELIVERY_THRESHOLD) * 100, 100)}%` }}
+                  />
+                </div>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {t("freeDeliveryProgress", { amount: formatPrice(FREE_DELIVERY_THRESHOLD - subtotal) })}
+                </span>
+              </div>
+            ) : (
+              <p className="text-xs font-medium text-green-600">🎉 {t("freeDeliveryReached")}</p>
+            )}
+          </div>
+        )}
+
+        {/* 搭配推荐 */}
+        <CartRecommendations />
 
         {/* 底部汇总 */}
         {items.length > 0 && (

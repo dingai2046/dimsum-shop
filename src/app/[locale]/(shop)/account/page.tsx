@@ -3,6 +3,7 @@ import {
   Package,
   MapPin,
   Star,
+  Heart,
   ChevronRight,
   LogOut,
 } from "lucide-react";
@@ -55,6 +56,7 @@ function AccountPageContent({
 
   const menuItems = [
     { href: "/account/orders" as const, label: t("myOrders"), desc: t("ordersDesc", { count: orders.length }), icon: Package },
+    { href: "/account/favorites" as const, label: t("myFavorites"), desc: t("favoritesDesc"), icon: Heart },
     { href: "/account/addresses" as const, label: t("addressManage"), desc: t("addressDesc"), icon: MapPin },
     { href: "/account/points" as const, label: t("myPoints"), desc: t("pointsDesc", { count: 0 }), icon: Star },
   ];

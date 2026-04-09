@@ -76,18 +76,63 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async signIn({ account, profile }) {
       if (account?.provider === "google" && profile?.email) {
-        await prisma.user.upsert({
+        // 检查用户是否已存在
+        const existingUser = await prisma.user.findUnique({
           where: { email: profile.email },
-          create: {
-            email: profile.email,
-            name: profile.name || profile.email.split("@")[0],
-            avatar: (profile as { picture?: string }).picture || null,
-            role: "CUSTOMER",
-          },
-          update: {
-            avatar: (profile as { picture?: string }).picture || undefined,
-          },
         });
+
+        if (existingUser) {
+          // 已有用户，更新头像
+          await prisma.user.update({
+            where: { email: profile.email },
+            data: {
+              avatar: (profile as { picture?: string }).picture || undefined,
+            },
+          });
+        } else {
+          // 新用户，创建账号
+          const user = await prisma.user.create({
+            data: {
+              email: profile.email,
+              name: profile.name || profile.email.split("@")[0],
+              avatar: (profile as { picture?: string }).picture || null,
+              role: "CUSTOMER",
+            },
+          });
+
+          // 新用户注册奖励：100积分 + $5优惠券
+          try {
+            await prisma.pointsRecord.create({
+              data: {
+                userId: user.id,
+                points: 100,
+                type: "ADJUST",
+                description: "新用户注册奖励",
+              },
+            });
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { points: 100 },
+            });
+
+            const couponCode = "WELCOME" + user.id.slice(-6).toUpperCase();
+            await prisma.coupon.create({
+              data: {
+                code: couponCode,
+                type: "FIXED",
+                value: 500, // $5
+                minOrder: 2000, // 满 $20 可用
+                totalLimit: 1,
+                perUserLimit: 1,
+                isNewUserOnly: true,
+                description: "新用户首单优惠 $5",
+                endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+              },
+            });
+          } catch (bonusError) {
+            console.error("Google注册发放新用户奖励失败:", bonusError);
+          }
+        }
       }
       return true;
     },

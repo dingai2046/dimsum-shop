@@ -11,6 +11,7 @@ export function RegisterForm() {
   const router = useRouter();
   const t = useTranslations("auth");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
@@ -36,6 +37,11 @@ export function RegisterForm() {
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Registration failed"); setLoading(false); return; }
+
+      // 显示欢迎奖励提示
+      if (data.couponCode) {
+        setSuccess(t("welcomeBonus") + " " + t("couponCode", { code: data.couponCode }));
+      }
 
       const loginResult = await signIn("credentials", { email, password, redirect: false });
       if (loginResult?.error) { router.push("/login?registered=1"); return; }
@@ -71,6 +77,7 @@ export function RegisterForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
+        {success && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">{success}</div>}
         <div className="space-y-2">
           <label htmlFor="name" className="text-sm font-medium">{t("yourName")}</label>
           <Input id="name" name="name" type="text" placeholder="Your name" required className="h-11 rounded-xl" />

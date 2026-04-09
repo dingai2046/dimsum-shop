@@ -87,9 +87,14 @@
     "checkout": "去结算",
     "noItems": "还没有选购菜品",
     "freeDeliveryNote": "门店自取 · 免配送费",
+    "freeDeliveryProgress": "再消费 {amount} 即可免运费",
+    "freeDeliveryReached": "已达免运费标准",
+    "minOrderWarning": "外送满${amount}起送",
     "shipping": "运费",
     "freeShipping": "免运费",
-    "goShopping": "去选购"
+    "goShopping": "去选购",
+    "recommendations": "搭配推荐",
+    "addMore": "加一份"
   },
   "checkout": {
     "title": "确认订单",
@@ -118,7 +123,17 @@
     "goShopping": "去选购",
     "orderFailed": "下单失败",
     "networkError": "网络错误，请重试",
-    "paymentFailed": "支付失败"
+    "paymentFailed": "支付失败",
+    "savedAddresses": "已保存地址",
+    "newAddress": "填写新地址",
+    "selectAddress": "选择配送地址",
+    "couponCode": "优惠码",
+    "applyCoupon": "使用",
+    "couponApplied": "优惠券已应用，减免 {amount}",
+    "couponInvalid": "优惠码无效",
+    "couponExpired": "优惠码已过期",
+    "couponMinOrder": "未达到最低消费 {amount}",
+    "discount": "优惠"
   },
   "auth": {
     "welcome": "欢迎回来",
@@ -147,7 +162,9 @@
     "passwordMin": "密码至少需要6位",
     "registerSuccess": "注册成功！请登录你的账号。",
     "demoAccount": "Demo 账号：",
-    "demoInfo": "邮箱：demo@dongfang.com | 密码：123456"
+    "demoInfo": "邮箱：demo@dongfang.com | 密码：123456",
+    "welcomeBonus": "🎉 欢迎！已赠送 100 积分 + $5 首单优惠券",
+    "couponCode": "优惠码：{code}"
   },
   "account": {
     "title": "个人中心",
@@ -159,7 +176,9 @@
     "addressManage": "地址管理",
     "addressDesc": "管理收货地址",
     "myPoints": "我的积分",
-    "pointsDesc": "{count} 积分可用"
+    "pointsDesc": "{count} 积分可用",
+    "myFavorites": "我的收藏",
+    "favoritesDesc": "收藏的菜品"
   },
   "orders": {
     "title": "我的订单",
@@ -335,6 +354,47 @@
     "searchOrderNo": "搜索订单号...",
     "active": "上架",
     "inactive": "下架",
-    "stock": "库存"
+    "stock": "库存",
+    "reviews": "评价管理",
+    "reviewVisible": "显示",
+    "reviewHidden": "隐藏",
+    "toggleVisibility": "切换显示",
+    "coupons": "优惠券管理",
+    "newCoupon": "创建优惠券",
+    "editCoupon": "编辑优惠券",
+    "couponCode": "优惠码",
+    "couponType": "类型",
+    "couponValue": "面值",
+    "couponMinOrder": "最低消费",
+    "couponMaxDiscount": "最大减免",
+    "couponLimit": "发放量",
+    "couponPerUser": "每人限用",
+    "couponUsed": "已使用",
+    "couponNewUserOnly": "仅新用户",
+    "couponActive": "生效中",
+    "couponExpired": "已过期",
+    "couponDepleted": "已用完",
+    "fixed": "固定金额",
+    "percent": "百分比折扣",
+    "freeDelivery": "免运费"
+  },
+  "favorites": {
+    "title": "我的收藏",
+    "empty": "还没有收藏",
+    "goMenu": "去看看菜单"
+  },
+  "reviews": {
+    "title": "评价",
+    "writeReview": "写评价",
+    "averageRating": "平均评分",
+    "reviewCount": "{count} 条评价",
+    "noReviews": "暂无评价",
+    "beFirst": "成为第一个评价的人",
+    "submitReview": "提交评价",
+    "reviewSubmitted": "评价已提交",
+    "ratingRequired": "请选择评分",
+    "rating": "评分",
+    "reviewContent": "评价内容（选填）",
+    "cancel": "取消"
   }
 }

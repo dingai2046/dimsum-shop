@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
+import { sendPaymentSuccess } from "@/lib/email";
 import type Stripe from "stripe";
 
 export async function POST(request: Request) {
@@ -35,7 +36,17 @@ export async function POST(request: Request) {
         const order = await prisma.order.update({
           where: { orderNo },
           data: { status: "PAID", paymentId: paymentIntent.id },
+          include: { user: { select: { email: true } } },
         });
+
+        // 发送支付成功邮件（不阻塞主流程）
+        try {
+          if (order.user?.email) {
+            sendPaymentSuccess(order.user.email, orderNo, order.totalAmount);
+          }
+        } catch (emailError) {
+          console.error("发送支付成功邮件失败:", emailError);
+        }
 
         // 记录积分（每消费 1 元获 1 积分）
         const earnedPoints = Math.floor(order.subtotal / 100);

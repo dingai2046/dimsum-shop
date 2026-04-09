@@ -3,7 +3,7 @@
 import { useRef, useEffect } from "react";
 import { ShoppingBag } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useCart } from "@/lib/cart-context";
+import { useCart, FREE_DELIVERY_THRESHOLD, MIN_ORDER_AMOUNT } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ interface CartBarProps {
 }
 
 export function CartBar({ onCartClick }: CartBarProps) {
-  const { totalItems, totalPrice, deliveryFee, deliveryType } = useCart();
+  const { totalItems, totalPrice, subtotal, deliveryFee, deliveryType } = useCart();
   const t = useTranslations("cart");
   const ts = useTranslations("store");
   const prevItemsRef = useRef(totalItems);
@@ -64,24 +64,48 @@ export function CartBar({ onCartClick }: CartBarProps) {
                     : ts("freeDelivery") + " 🎉"
                   : t("freeDeliveryNote")}
               </span>
+              {/* 免运费进度条 */}
+              {deliveryType === "delivery" && totalItems > 0 && subtotal < FREE_DELIVERY_THRESHOLD && (
+                <div className="mt-1 flex items-center gap-1.5">
+                  <div className="h-1 flex-1 overflow-hidden rounded-full bg-primary-foreground/20">
+                    <div
+                      className="h-full rounded-full bg-green-400 transition-all duration-300"
+                      style={{ width: `${Math.min((subtotal / FREE_DELIVERY_THRESHOLD) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className="shrink-0 text-[10px] text-primary-foreground/60">
+                    {t("freeDeliveryProgress", { amount: formatPrice(FREE_DELIVERY_THRESHOLD - subtotal) })}
+                  </span>
+                </div>
+              )}
+              {deliveryType === "delivery" && subtotal >= FREE_DELIVERY_THRESHOLD && (
+                <span className="mt-0.5 text-[10px] text-green-400">🎉 {t("freeDeliveryReached")}</span>
+              )}
             </>
           ) : (
             <span className="text-sm text-primary-foreground/50">{t("noItems")}</span>
           )}
         </div>
 
-        <button
-          onClick={() => { if (totalItems > 0) window.location.href = "/checkout"; }}
-          disabled={totalItems === 0}
-          className={cn(
-            "shrink-0 rounded-full px-6 py-2.5 text-sm font-bold transition-all duration-200",
-            totalItems > 0
-              ? "bg-primary text-primary-foreground shadow-lg hover:shadow-xl active:scale-95"
-              : "bg-primary-foreground/10 text-primary-foreground/30 cursor-not-allowed"
-          )}
-        >
-          {t("checkout")}
-        </button>
+        {(() => {
+          const belowMinOrder = deliveryType === "delivery" && subtotal < MIN_ORDER_AMOUNT && totalItems > 0;
+          return (
+            <button
+              onClick={() => { if (totalItems > 0 && !belowMinOrder) window.location.href = "/checkout"; }}
+              disabled={totalItems === 0 || belowMinOrder}
+              className={cn(
+                "shrink-0 rounded-full px-6 py-2.5 text-sm font-bold transition-all duration-200",
+                totalItems > 0 && !belowMinOrder
+                  ? "bg-primary text-primary-foreground shadow-lg hover:shadow-xl active:scale-95"
+                  : "bg-primary-foreground/10 text-primary-foreground/30 cursor-not-allowed"
+              )}
+            >
+              {belowMinOrder
+                ? t("minOrderWarning", { amount: (MIN_ORDER_AMOUNT / 100).toString() })
+                : t("checkout")}
+            </button>
+          );
+        })()}
       </div>
     </div>
   );

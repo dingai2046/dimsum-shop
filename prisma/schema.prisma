@@ -64,6 +64,8 @@ model User {
   orders       Order[]
   pointRecords PointsRecord[]
   favorites    Favorite[]
+  reviews      Review[]
+  couponUses   CouponUse[]
 
   @@map("users")
 }
@@ -109,6 +111,7 @@ model Product {
   category   Category    @relation(fields: [categoryId], references: [id])
   orderItems OrderItem[]
   favorites  Favorite[]
+  reviews    Review[]
 
   @@index([categoryId])
   @@index([soldCount])
@@ -212,4 +215,71 @@ model SiteSettings {
   updatedAt DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+// 优惠券
+enum CouponType {
+  FIXED      // 固定金额减免
+  PERCENT    // 百分比折扣
+  FREE_DELIVERY // 免运费
+}
+
+model Coupon {
+  id            String     @id @default(cuid())
+  code          String     @unique // 优惠码
+  type          CouponType
+  value         Int        // FIXED=金额(分) PERCENT=百分比(如10=10%)
+  minOrder      Int        @default(0) // 最低消费（分）
+  maxDiscount   Int?       // PERCENT 类型最大减免（分）
+  totalLimit    Int        @default(0) // 总发放量，0=不限
+  usedCount     Int        @default(0) // 已使用次数
+  perUserLimit  Int        @default(1) // 每人限用次数
+  isActive      Boolean    @default(true)
+  isNewUserOnly Boolean    @default(false) // 仅新用户
+  startDate     DateTime   @default(now())
+  endDate       DateTime?
+  description   String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  uses CouponUse[]
+
+  @@map("coupons")
+}
+
+model CouponUse {
+  id        String   @id @default(cuid())
+  couponId  String
+  userId    String
+  orderId   String?
+  discount  Int      // 实际减免金额（分）
+  createdAt DateTime @default(now())
+
+  coupon Coupon @relation(fields: [couponId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([couponId])
+  @@index([userId])
+  @@map("coupon_uses")
+}
+
+// 产品评价
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  orderId   String?  // 关联订单（确保已购买）
+  rating    Int      // 1-5 星
+  content   String?  // 评价文字
+  images    String[] // 评价图片
+  isVisible Boolean  @default(true) // 审核后显示
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+  @@index([userId])
+  @@map("reviews")
 }

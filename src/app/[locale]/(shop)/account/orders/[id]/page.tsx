@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
 import { getOrderById, getStatusInfo } from "@/lib/api/orders";
 import { formatPrice } from "@/lib/utils/format";
+import { ReorderButton } from "@/components/shop/reorder-button";
 
 const statusOrder: Record<string, number> = {
   PENDING: 0,
@@ -139,6 +140,18 @@ function OrderDetailContent({ order }: { order: NonNullable<Awaited<ReturnType<t
             <span className="ml-2 text-lg font-bold text-primary">{formatPrice(order.totalAmount)}</span>
           </div>
         </div>
+      </div>
+
+      {/* 再来一单 */}
+      <div className="mb-4 flex justify-center">
+        <ReorderButton
+          items={order.items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price,
+            productSnapshot: item.productSnapshot as { name?: string; price?: number; image?: string },
+          }))}
+        />
       </div>
 
       {/* 收货信息 */}

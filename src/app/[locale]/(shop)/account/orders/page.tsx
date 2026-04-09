@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { getOrdersByUserId, getStatusInfo } from "@/lib/api/orders";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
+import { ReorderButton } from "@/components/shop/reorder-button";
 
 interface OrdersPageProps {
   searchParams: Promise<{ status?: string }>;
@@ -116,9 +117,20 @@ function OrdersPageContent({ currentStatus, orders }: { currentStatus: string; o
                   <span className="text-xs text-muted-foreground">
                     {new Date(order.createdAt).toLocaleDateString("zh-CN")}
                   </span>
-                  <span className="text-sm">
-                    {tCart("total")} <span className="font-bold text-primary">{formatPrice(order.totalAmount)}</span>
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <ReorderButton
+                      variant="compact"
+                      items={order.items.map((item) => ({
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        price: item.price,
+                        productSnapshot: item.productSnapshot as { name?: string; price?: number; image?: string },
+                      }))}
+                    />
+                    <span className="text-sm">
+                      {tCart("total")} <span className="font-bold text-primary">{formatPrice(order.totalAmount)}</span>
+                    </span>
+                  </div>
                 </div>
               </Link>
             );

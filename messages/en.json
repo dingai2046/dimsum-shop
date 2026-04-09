@@ -87,9 +87,14 @@
     "checkout": "Checkout",
     "noItems": "No items selected",
     "freeDeliveryNote": "Pickup · Free delivery",
+    "freeDeliveryProgress": "Spend {amount} more for free delivery",
+    "freeDeliveryReached": "Free delivery unlocked!",
+    "minOrderWarning": "Min. ${amount} for delivery",
     "shipping": "Shipping",
     "freeShipping": "Free shipping",
-    "goShopping": "Browse Menu"
+    "goShopping": "Browse Menu",
+    "recommendations": "You might also like",
+    "addMore": "Add"
   },
   "checkout": {
     "title": "Confirm Order",
@@ -118,7 +123,17 @@
     "goShopping": "Browse Menu",
     "orderFailed": "Order failed",
     "networkError": "Network error, please retry",
-    "paymentFailed": "Payment failed"
+    "paymentFailed": "Payment failed",
+    "savedAddresses": "Saved Addresses",
+    "newAddress": "New Address",
+    "selectAddress": "Select delivery address",
+    "couponCode": "Promo Code",
+    "applyCoupon": "Apply",
+    "couponApplied": "Coupon applied, saved {amount}",
+    "couponInvalid": "Invalid promo code",
+    "couponExpired": "Promo code expired",
+    "couponMinOrder": "Min. order {amount} required",
+    "discount": "Discount"
   },
   "auth": {
     "welcome": "Welcome Back",
@@ -147,7 +162,9 @@
     "passwordMin": "Password must be at least 6 characters",
     "registerSuccess": "Registration successful! Please sign in.",
     "demoAccount": "Demo Account:",
-    "demoInfo": "Email: demo@dongfang.com | Password: 123456"
+    "demoInfo": "Email: demo@dongfang.com | Password: 123456",
+    "welcomeBonus": "🎉 Welcome! 100 points + $5 coupon granted",
+    "couponCode": "Promo code: {code}"
   },
   "account": {
     "title": "My Account",
@@ -159,7 +176,9 @@
     "addressManage": "Addresses",
     "addressDesc": "Manage delivery addresses",
     "myPoints": "My Points",
-    "pointsDesc": "{count} points available"
+    "pointsDesc": "{count} points available",
+    "myFavorites": "My Favorites",
+    "favoritesDesc": "Saved dishes"
   },
   "orders": {
     "title": "My Orders",
@@ -335,6 +354,47 @@
     "searchOrderNo": "Search order number...",
     "active": "Active",
     "inactive": "Inactive",
-    "stock": "Stock"
+    "stock": "Stock",
+    "reviews": "Reviews",
+    "reviewVisible": "Visible",
+    "reviewHidden": "Hidden",
+    "toggleVisibility": "Toggle Visibility",
+    "coupons": "Coupons",
+    "newCoupon": "New Coupon",
+    "editCoupon": "Edit Coupon",
+    "couponCode": "Code",
+    "couponType": "Type",
+    "couponValue": "Value",
+    "couponMinOrder": "Min Order",
+    "couponMaxDiscount": "Max Discount",
+    "couponLimit": "Limit",
+    "couponPerUser": "Per User",
+    "couponUsed": "Used",
+    "couponNewUserOnly": "New Users Only",
+    "couponActive": "Active",
+    "couponExpired": "Expired",
+    "couponDepleted": "Depleted",
+    "fixed": "Fixed Amount",
+    "percent": "Percentage",
+    "freeDelivery": "Free Delivery"
+  },
+  "favorites": {
+    "title": "My Favorites",
+    "empty": "No favorites yet",
+    "goMenu": "Browse menu"
+  },
+  "reviews": {
+    "title": "Reviews",
+    "writeReview": "Write a Review",
+    "averageRating": "Average Rating",
+    "reviewCount": "{count} reviews",
+    "noReviews": "No reviews yet",
+    "beFirst": "Be the first to review",
+    "submitReview": "Submit Review",
+    "reviewSubmitted": "Review submitted",
+    "ratingRequired": "Please select a rating",
+    "rating": "Rating",
+    "reviewContent": "Review content (optional)",
+    "cancel": "Cancel"
   }
 }
