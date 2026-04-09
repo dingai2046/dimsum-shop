@@ -1,12 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { User, LogOut, ClipboardList } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { LanguageSwitcher } from "./language-switcher";
 
 export function Header() {
   const { data: session } = useSession();
+  const t = useTranslations("nav");
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
@@ -35,24 +38,26 @@ export function Header() {
             href="/"
             className="text-sm font-medium text-foreground transition-colors hover:text-primary"
           >
-            菜单
+            {t("menu")}
           </Link>
           <Link
             href="/account/orders"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            我的订单
+            {t("orders")}
           </Link>
           <Link
             href="/about"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            关于我们
+            {t("about")}
           </Link>
         </nav>
 
         {/* 右侧操作 */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
+          <LanguageSwitcher />
+
           <Link href="/account/orders" className="md:hidden">
             <Button variant="ghost" size="icon" className="text-muted-foreground">
               <ClipboardList className="h-5 w-5" />
@@ -78,7 +83,7 @@ export function Header() {
           ) : (
             <Link href="/login">
               <Button variant="ghost" className="text-sm text-muted-foreground">
-                登录
+                {t("login")}
               </Button>
             </Link>
           )}

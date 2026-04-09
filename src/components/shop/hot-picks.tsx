@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
 
@@ -21,6 +22,7 @@ interface HotPicksProps {
 
 export function HotPicks({ products }: HotPicksProps) {
   const { addItem, getItemQuantity } = useCart();
+  const t = useTranslations("menu");
 
   if (products.length === 0) return null;
 
@@ -29,7 +31,7 @@ export function HotPicks({ products }: HotPicksProps) {
       <div className="mx-auto max-w-7xl px-4">
         <h2 className="mb-3 flex items-center gap-1.5 text-base font-bold">
           <span className="inline-block animate-pulse">🔥</span>
-          必点推荐
+          {t("hotPicks")}
         </h2>
 
         {/* 横向滚动卡片 */}
@@ -68,6 +70,7 @@ function HotPickCard({
   quantity: number;
   onAdd: () => void;
 }) {
+  const t = useTranslations("menu");
   const btnRef = useRef<HTMLButtonElement>(null);
   const prevQtyRef = useRef(quantity);
 
@@ -111,7 +114,7 @@ function HotPickCard({
       <p className="mt-1.5 text-xs font-medium line-clamp-1">{product.name}</p>
       <div className="flex items-baseline gap-1">
         <span className="text-xs font-bold text-primary">{formatPrice(product.price)}</span>
-        <span className="text-[10px] text-muted-foreground">月售{product.soldCount}</span>
+        <span className="text-[10px] text-muted-foreground">{t("monthlySales", { count: product.soldCount })}</span>
       </div>
     </div>
   );

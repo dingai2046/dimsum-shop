@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { Minus, Plus, Trash2, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
 import Image from "next/image";
@@ -13,6 +14,7 @@ interface CartSheetProps {
 
 export function CartSheet({ open, onClose }: CartSheetProps) {
   const { items, totalItems, totalPrice, deliveryFee, deliveryType, updateQuantity, clearCart } = useCart();
+  const t = useTranslations("cart");
   const sheetRef = useRef<HTMLDivElement>(null);
 
   // 拖拽关闭手势
@@ -75,8 +77,8 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border/50 px-4 pb-3">
           <div className="flex items-center gap-2">
-            <h3 className="text-base font-bold">购物车</h3>
-            <span className="text-sm text-muted-foreground">({totalItems}件)</span>
+            <h3 className="text-base font-bold">{t("title")}</h3>
+            <span className="text-sm text-muted-foreground">({t("itemCount", { count: totalItems })})</span>
           </div>
           <div className="flex items-center gap-2">
             {items.length > 0 && (
@@ -85,7 +87,7 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                清空
+                {t("clear")}
               </button>
             )}
             <button onClick={onClose} className="rounded-full p-1.5 hover:bg-muted transition-colors">
@@ -99,8 +101,8 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
           {items.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground animate-fade-up">
               <p className="text-3xl mb-2">🛒</p>
-              <p>购物车空空如也</p>
-              <p className="mt-1 text-sm">快去选几道菜吧 ~</p>
+              <p>{t("empty")}</p>
+              <p className="mt-1 text-sm">{t("emptyHint")}</p>
             </div>
           ) : (
             <div className="divide-y divide-border/50">
@@ -148,19 +150,19 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
         {items.length > 0 && (
           <div className="border-t border-border/50 px-4 py-3">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">商品小计</span>
+              <span className="text-muted-foreground">{t("subtotal")}</span>
               <span className="tabular-nums">{formatPrice(totalPrice - deliveryFee)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">
-                {deliveryType === "delivery" ? "配送费" : "自取"}
+                {deliveryType === "delivery" ? t("deliveryFee") : t("selfPickup")}
               </span>
               <span className={deliveryFee === 0 ? "text-green-600 font-medium" : "tabular-nums"}>
                 {deliveryFee === 0 ? "免费 🎉" : formatPrice(deliveryFee)}
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2">
-              <span className="font-bold">合计</span>
+              <span className="font-bold">{t("total")}</span>
               <span className="text-xl font-bold text-primary tabular-nums">{formatPrice(totalPrice)}</span>
             </div>
           </div>

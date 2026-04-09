@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import Image from "next/image";
 import { Minus, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useCart } from "@/lib/cart-context";
 import { formatPrice } from "@/lib/utils/format";
 
@@ -35,6 +36,7 @@ export function MenuProductCard({
   onDetailClick,
 }: MenuProductCardProps) {
   const { addItem, updateQuantity, getItemQuantity } = useCart();
+  const t = useTranslations("menu");
   const quantity = getItemQuantity(id);
   const prevQuantityRef = useRef(quantity);
   const numRef = useRef<HTMLSpanElement>(null);
@@ -99,7 +101,7 @@ export function MenuProductCard({
           )}
           <div className="mt-1 flex flex-wrap items-center gap-1">
             {soldCount && soldCount > 0 && (
-              <span className="text-[10px] text-primary font-medium">月售{soldCount}</span>
+              <span className="text-[10px] text-primary font-medium">{t("monthlySales", { count: soldCount })}</span>
             )}
             {servingSize && (
               <span className="text-[10px] text-muted-foreground">{servingSize}</span>
