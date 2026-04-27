@@ -16,9 +16,10 @@ const seedCategories = [
   { name: "香脆春卷", slug: "spring-rolls",  description: "金黄酥脆，现炸现卖",  icon: "🌿", sortOrder: 3 },
 ];
 
-// helper: 生成 images 数组 /images/products/{slug}-2.jpg … -5.jpg
+// helper: 缩略图用 -2.jpg（特写方图）；轮播含 -1.jpg（全景宽图）+ -3..5.jpg
+const thumb = (slug: string) => `/images/products/${slug}-2.jpg`;
 const carousel = (slug: string) =>
-  [2, 3, 4, 5].map((n) => `/images/products/${slug}-${n}.jpg`);
+  [1, 3, 4, 5].map((n) => `/images/products/${slug}-${n}.jpg`);
 
 const seedProducts = [
   // ── 手工水饺 ──
@@ -30,7 +31,7 @@ const seedProducts = [
     price: 1780,
     originalPrice: null,
     wholesalePrice: 1400,
-    image: "/images/products/crescent-1.jpg",
+    image: thumb("crescent"),
     images: carousel("crescent"),
     categorySlug: "dumplings",
     stock: 90,
@@ -47,7 +48,7 @@ const seedProducts = [
     price: 1780,
     originalPrice: null,
     wholesalePrice: 1400,
-    image: "/images/products/jade-1.jpg",
+    image: thumb("jade"),
     images: carousel("jade"),
     categorySlug: "dumplings",
     stock: 80,
@@ -64,7 +65,7 @@ const seedProducts = [
     price: 1880,
     originalPrice: null,
     wholesalePrice: 1500,
-    image: "/images/products/xiajiao-1.jpg",
+    image: thumb("xiajiao"),
     images: carousel("xiajiao"),
     categorySlug: "dumplings",
     stock: 70,
@@ -83,7 +84,7 @@ const seedProducts = [
     price: 1880,
     originalPrice: null,
     wholesalePrice: 1500,
-    image: "/images/products/xiaolongbao-1.jpg",
+    image: thumb("xiaolongbao"),
     images: carousel("xiaolongbao"),
     categorySlug: "steamed",
     stock: 100,
@@ -100,7 +101,7 @@ const seedProducts = [
     price: 1780,
     originalPrice: null,
     wholesalePrice: 1400,
-    image: "/images/products/siumai-chicken-1.jpg",
+    image: thumb("siumai-chicken"),
     images: carousel("siumai-chicken"),
     categorySlug: "steamed",
     stock: 80,
@@ -117,7 +118,7 @@ const seedProducts = [
     price: 1780,
     originalPrice: null,
     wholesalePrice: 1400,
-    image: "/images/products/siumai-gold-1.jpg",
+    image: thumb("siumai-gold"),
     images: carousel("siumai-gold"),
     categorySlug: "steamed",
     stock: 75,
@@ -136,7 +137,7 @@ const seedProducts = [
     price: 1880,
     originalPrice: null,
     wholesalePrice: 1500,
-    image: "/images/products/wonton-1.jpg",
+    image: thumb("wonton"),
     images: carousel("wonton"),
     categorySlug: "wontons",
     stock: 60,
@@ -155,7 +156,7 @@ const seedProducts = [
     price: 1580,
     originalPrice: null,
     wholesalePrice: 1260,
-    image: "/images/products/springroll-long-1.jpg",
+    image: thumb("springroll-long"),
     images: carousel("springroll-long"),
     categorySlug: "spring-rolls",
     stock: 80,
@@ -172,7 +173,7 @@ const seedProducts = [
     price: 1580,
     originalPrice: null,
     wholesalePrice: 1260,
-    image: "/images/products/springroll-square-1.jpg",
+    image: thumb("springroll-square"),
     images: carousel("springroll-square"),
     categorySlug: "spring-rolls",
     stock: 80,
