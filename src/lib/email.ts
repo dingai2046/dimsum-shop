@@ -38,7 +38,7 @@ function emailLayout(content: string) {
         <tr>
           <td style="background:#c41e24;padding:24px 32px;text-align:center;">
             <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:2px;">東方點心</h1>
-            <p style="margin:4px 0 0;color:#ffcccc;font-size:13px;">Dong Fang Dim Sim</p>
+            <p style="margin:4px 0 0;color:#ffcccc;font-size:13px;">Dong Fang Dim Sum</p>
           </td>
         </tr>
         <!-- Body -->
@@ -50,7 +50,7 @@ function emailLayout(content: string) {
         <!-- Footer -->
         <tr>
           <td style="padding:20px 32px;background:#fafafa;border-top:1px solid #eee;text-align:center;">
-            <p style="margin:0;color:#999;font-size:12px;">東方點心 Dong Fang Dim Sim</p>
+            <p style="margin:0;color:#999;font-size:12px;">東方點心 Dong Fang Dim Sum</p>
             <p style="margin:4px 0 0;color:#bbb;font-size:11px;">此邮件为系统自动发送，请勿回复</p>
           </td>
         </tr>

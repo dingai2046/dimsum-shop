@@ -56,7 +56,7 @@ export const defaultSettings: SiteSettings = {
   },
   about: {
     title: "關於東方點心",
-    subtitle: "Dong Fang Dim Sim — Since 2020",
+    subtitle: "Dong Fang Dim Sum — Since 2020",
     content: `東方點心位于悉尼 South Hurstville，是一家专注于传统中式点心的外卖店铺。我们坚持手工制作每一只点心，从选材到成品，每一个环节都精益求精。
 
 我们的师傅拥有超过20年的点心制作经验，传承正宗粤式与北方点心工艺。无论是鲜美多汁的小笼包，还是皮薄馅大的手工水饺，每一口都是对传统味道的致敬。
@@ -83,7 +83,7 @@ export const defaultSettings: SiteSettings = {
     ],
   },
   hero: {
-    tagline: "東方點心 · Dong Fang Dim Sim",
+    tagline: "東方點心 · Dong Fang Dim Sum",
     title: "传统手工点心",
     subtitle: "温暖每一天",
     description: "精选优质食材，传承百年手艺。从蒸笼到餐桌，为你送上地道的中式美味。",

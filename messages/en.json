@@ -1,7 +1,7 @@
 {
   "common": {
     "brand": "東方點心",
-    "brandEn": "Dong Fang Dim Sim",
+    "brandEn": "Dong Fang Dim Sum",
     "loading": "Loading...",
     "error": "Something went wrong",
     "retry": "Retry",
@@ -254,7 +254,7 @@
     "contact": "Contact Us",
     "quickLinks": "Quick Links",
     "followUs": "Follow Us",
-    "allRights": "© {year} Dong Fang Dim Sim. All rights reserved.",
+    "allRights": "© {year} Dong Fang Dim Sum. All rights reserved.",
     "wechat": "WeChat",
     "address": "Address",
     "phone": "Phone",

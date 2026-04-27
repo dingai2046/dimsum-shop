@@ -35,7 +35,7 @@ export function Header() {
               Dong Fang
             </span>
             <span className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase leading-tight">
-              Dim Sim
+              Dim Sum
             </span>
           </div>
         </Link>

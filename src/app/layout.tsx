@@ -16,7 +16,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://dongfangdimsim.com
 
 export const metadata: Metadata = {
   title: {
-    default: "東方點心 | Dong Fang Dim Sim",
+    default: "東方點心 | Dong Fang Dim Sum",
     template: "%s | 東方點心",
   },
   description: "Handmade dim sum wholesale & retail in Sydney. Xiao Long Bao, dumplings, wontons, siu mai. Traditional craftsmanship, freshly made.",
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   openGraph: {
     type: "website",
-    siteName: "東方點心 Dong Fang Dim Sim",
-    title: "東方點心 | Dong Fang Dim Sim",
+    siteName: "東方點心 Dong Fang Dim Sum",
+    title: "東方點心 | Dong Fang Dim Sum",
     description: "Handmade dim sum wholesale & retail in Sydney.",
     images: [{ url: "/images/hero/dimsum-hero.jpg", width: 1200, height: 630, alt: "東方點心" }],
   },
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Restaurant",
-  name: "東方點心 Dong Fang Dim Sim",
+  name: "東方點心 Dong Fang Dim Sum",
   image: `${BASE_URL}/images/hero/dimsum-hero.jpg`,
   url: BASE_URL,
   telephone: "+61285914432",
