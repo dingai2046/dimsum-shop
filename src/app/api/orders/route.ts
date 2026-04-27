@@ -41,6 +41,19 @@ export async function POST(request: Request) {
       );
     }
 
+    // 校验所有 productId 是否仍然有效（防止旧购物车数据外键报错）
+    const productIds = items.map((i: { productId: string }) => i.productId);
+    const validProducts = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      select: { id: true },
+    });
+    if (validProducts.length !== productIds.length) {
+      return NextResponse.json(
+        { error: "部分商品已下架或不存在，请清空购物车重新选购", code: "STALE_CART" },
+        { status: 400 }
+      );
+    }
+
     const subtotal = items.reduce(
       (sum: number, item: { price: number; quantity: number }) =>
         sum + item.price * item.quantity,

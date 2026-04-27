@@ -273,7 +273,12 @@ export default function CheckoutPage() {
 
       if (!orderRes.ok) {
         const data = await orderRes.json();
-        setError((data.error || t("orderFailed")) + (data.detail ? " " + data.detail : ""));
+        if (data.code === "STALE_CART") {
+          clearCart();
+          setError("购物车中有已失效的商品，已自动清空，请重新选购 🥟");
+        } else {
+          setError((data.error || t("orderFailed")) + (data.detail ? " " + data.detail : ""));
+        }
         setLoading(false);
         return;
       }
