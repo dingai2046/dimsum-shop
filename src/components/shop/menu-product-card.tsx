@@ -79,7 +79,7 @@ export function MenuProductCard({
       {/* 产品图片 */}
       <div className="relative h-[92px] w-[92px] shrink-0 overflow-hidden rounded-xl bg-muted sm:h-[108px] sm:w-[108px] group">
         <Image
-          src={image || "/images/products/xiajiao.jpg"}
+          src={image || "/images/products/xiajiao-2.jpg"}
           alt={name}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"

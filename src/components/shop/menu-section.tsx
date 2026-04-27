@@ -130,7 +130,7 @@ export function MenuSection({ categories, onProductClick }: MenuSectionProps) {
                   price={product.price}
                   originalPrice={product.originalPrice}
                   wholesalePrice={product.wholesalePrice}
-                  image={product.image || "/images/products/xiajiao.jpg"}
+                  image={product.image || "/images/products/xiajiao-2.jpg"}
                   soldCount={product.soldCount}
                   tags={product.tags}
                   servingSize={product.servingSize}

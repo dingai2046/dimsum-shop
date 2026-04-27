@@ -127,7 +127,7 @@ function ProductsContent({
               name={product.name}
               price={product.price}
               originalPrice={product.originalPrice}
-              image={product.image || "/images/products/xiajiao.jpg"}
+              image={product.image || "/images/products/xiajiao-2.jpg"}
               category={product.category.name}
             />
           ))}

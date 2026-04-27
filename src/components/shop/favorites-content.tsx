@@ -48,7 +48,7 @@ export function FavoritesContent({
       slug: item.slug,
       name: item.name,
       price: item.price,
-      image: item.image || "/images/products/xiajiao.jpg",
+      image: item.image || "/images/products/xiajiao-2.jpg",
     });
   };
 
@@ -90,7 +90,7 @@ export function FavoritesContent({
               {/* 图片 */}
               <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
                 <Image
-                  src={item.image || "/images/products/xiajiao.jpg"}
+                  src={item.image || "/images/products/xiajiao-2.jpg"}
                   alt={item.name}
                   fill
                   className="object-cover"

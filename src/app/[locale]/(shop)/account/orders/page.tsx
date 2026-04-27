@@ -94,7 +94,7 @@ function OrdersPageContent({ currentStatus, orders }: { currentStatus: string; o
                       <div key={item.id} className="flex items-center gap-3">
                         <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                           <Image
-                            src={snapshot.image || "/images/products/xiajiao.jpg"}
+                            src={snapshot.image || "/images/products/xiajiao-2.jpg"}
                             alt={snapshot.name || ""}
                             fill
                             className="object-cover"

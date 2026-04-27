@@ -48,7 +48,7 @@ export function HotPicks({ products }: HotPicksProps) {
                   slug: product.slug,
                   name: product.name,
                   price: product.price,
-                  image: product.image || "/images/products/xiajiao.jpg",
+                  image: product.image || "/images/products/xiajiao-2.jpg",
                 })
               }
             />
@@ -90,7 +90,7 @@ function HotPickCard({
     >
       <div className="relative aspect-square overflow-hidden rounded-xl bg-muted group">
         <Image
-          src={product.image || "/images/products/xiajiao.jpg"}
+          src={product.image || "/images/products/xiajiao-2.jpg"}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-110"

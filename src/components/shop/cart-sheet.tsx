@@ -130,11 +130,13 @@ export function CartSheet({ open, onClose }: CartSheetProps) {
                 >
                   <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
                     <Image
-                      src={item.image || "/images/products/xiajiao.jpg"}
+                      src={item.image || "/images/products/xiajiao-2.jpg"}
                       alt={item.name}
                       fill
                       className="object-cover"
                       sizes="56px"
+                      unoptimized
+                      onError={(e) => { (e.target as HTMLImageElement).src = "/images/products/xiajiao-2.jpg"; }}
                     />
                   </div>
                   <div className="flex-1 min-w-0">

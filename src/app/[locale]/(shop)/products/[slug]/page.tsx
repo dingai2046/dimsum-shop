@@ -99,7 +99,7 @@ function ProductContent({
         {/* 左侧：产品图片 */}
         <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
           <Image
-            src={product.image || "/images/products/xiajiao.jpg"}
+            src={product.image || "/images/products/xiajiao-2.jpg"}
             alt={product.name}
             fill
             className="object-cover"
@@ -150,7 +150,7 @@ function ProductContent({
             slug={product.slug}
             productName={product.name}
             price={product.price}
-            image={product.image || "/images/products/xiajiao.jpg"}
+            image={product.image || "/images/products/xiajiao-2.jpg"}
             stock={product.stock}
           />
 
@@ -185,7 +185,7 @@ function ProductContent({
                 name={p.name}
                 price={p.price}
                 originalPrice={p.originalPrice}
-                image={p.image || "/images/products/xiajiao.jpg"}
+                image={p.image || "/images/products/xiajiao-2.jpg"}
                 category={p.category.name}
               />
             ))}

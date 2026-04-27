@@ -95,7 +95,7 @@ export function ProductDetailSheet({ product, open, onClose, isFavorited, favori
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.image || "/images/products/xiajiao.jpg",
+      image: product.image || "/images/products/xiajiao-2.jpg",
     });
   };
 
@@ -131,7 +131,7 @@ export function ProductDetailSheet({ product, open, onClose, isFavorited, favori
         {/* 产品大图 */}
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
           <Image
-            src={product.image || "/images/products/xiajiao.jpg"}
+            src={product.image || "/images/products/xiajiao-2.jpg"}
             alt={product.name}
             fill
             className="object-cover"

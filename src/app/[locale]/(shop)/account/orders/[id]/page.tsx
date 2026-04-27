@@ -125,7 +125,7 @@ function OrderDetailContent({ order }: { order: NonNullable<Awaited<ReturnType<t
             return (
               <div key={item.id} className="flex items-center gap-3">
                 <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
-                  <Image src={snapshot.image || "/images/products/xiajiao.jpg"} alt={snapshot.name || ""} fill className="object-cover" sizes="56px" />
+                  <Image src={snapshot.image || "/images/products/xiajiao-2.jpg"} alt={snapshot.name || ""} fill className="object-cover" sizes="56px" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">{snapshot.name || ""}</p>

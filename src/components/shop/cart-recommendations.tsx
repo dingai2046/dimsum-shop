@@ -77,7 +77,7 @@ export function CartRecommendations() {
             >
               <div className="relative h-16 w-full bg-muted">
                 <Image
-                  src={product.image || "/images/products/xiajiao.jpg"}
+                  src={product.image || "/images/products/xiajiao-2.jpg"}
                   alt={product.name}
                   fill
                   className="object-cover"
@@ -95,7 +95,7 @@ export function CartRecommendations() {
                         slug: product.slug,
                         name: product.name,
                         price: product.price,
-                        image: product.image || "/images/products/xiajiao.jpg",
+                        image: product.image || "/images/products/xiajiao-2.jpg",
                       })
                     }
                     className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground transition-all active:scale-90"

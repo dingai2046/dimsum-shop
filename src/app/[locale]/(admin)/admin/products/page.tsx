@@ -114,7 +114,7 @@ function AdminProductsContent({ products, totalCount, page, totalPages, q }: {
                     <div className="flex items-center gap-3">
                       <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-muted">
                         <Image
-                          src={product.image || "/images/products/xiajiao.jpg"}
+                          src={product.image || "/images/products/xiajiao-2.jpg"}
                           alt={product.name}
                           fill
                           className="object-cover"
