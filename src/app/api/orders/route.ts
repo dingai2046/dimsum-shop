@@ -121,33 +121,40 @@ export async function POST(request: Request) {
 
     const orderNo = generateOrderNo();
 
-    const order = await prisma.order.create({
-      data: {
-        orderNo,
-        userId: session.user.id,
-        deliveryType: deliveryType === "pickup" ? "PICKUP" : "DELIVERY",
-        deliveryFee: fee,
-        subtotal,
-        totalAmount,
-        status: "PENDING",
-        note: note || null,
-        addressSnapshot: address,
-        items: {
-          create: items.map(
-            (item: { productId: string; name: string; price: number; quantity: number; image: string }) => ({
-              productId: item.productId,
-              productSnapshot: {
-                name: item.name,
-                price: item.price,
-                image: item.image,
-              },
-              quantity: item.quantity,
-              price: item.price,
-            })
-          ),
+    // 用 $transaction 分两步写，避免 Prisma 7 + 驱动适配器嵌套 create 的兼容问题
+    const order = await prisma.$transaction(async (tx) => {
+      const created = await tx.order.create({
+        data: {
+          orderNo,
+          userId: session.user.id,
+          deliveryType: deliveryType === "pickup" ? "PICKUP" : "DELIVERY",
+          deliveryFee: fee,
+          subtotal,
+          totalAmount,
+          status: "PENDING",
+          note: note || null,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          addressSnapshot: address as any,
         },
-      },
-      include: { items: true },
+      });
+
+      await tx.orderItem.createMany({
+        data: items.map(
+          (item: { productId: string; name: string; price: number; quantity: number; image: string }) => ({
+            orderId: created.id,
+            productId: item.productId,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            productSnapshot: { name: item.name, price: item.price, image: item.image } as any,
+            quantity: item.quantity,
+            price: item.price,
+          })
+        ),
+      });
+
+      return tx.order.findUniqueOrThrow({
+        where: { id: created.id },
+        include: { items: true },
+      });
     });
 
     // 记录优惠券使用
@@ -192,7 +199,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ order, discount }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    console.error("创建订单失败:", message, error);
+    console.error("创建订单失败:", message);
     return NextResponse.json({ error: "创建订单失败", detail: message }, { status: 500 });
   }
 }
