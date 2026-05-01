@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { User, LogOut, ClipboardList, Gift } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
@@ -23,21 +24,15 @@ export function Header() {
     <header className={`sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-shadow ${scrolled ? "shadow-sm" : ""}`}>
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 md:h-16">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5">
-          <span
-            className="text-2xl font-black tracking-tight text-primary md:text-3xl"
-            style={{ fontFamily: "'KaiTi', 'STKaiti', 'SimKai', serif" }}
-          >
-            東方點心
-          </span>
-          <div className="hidden flex-col md:flex">
-            <span className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase leading-tight">
-              Dong Fang
-            </span>
-            <span className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase leading-tight">
-              Dim Sum
-            </span>
-          </div>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/images/logo.png"
+            alt="東方點心 Dong Fang Dim Sum"
+            width={52}
+            height={52}
+            className="h-10 w-10 md:h-12 md:w-12 object-contain"
+            priority
+          />
         </Link>
 
         {/* 桌面端导航 */}
